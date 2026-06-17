@@ -1,7 +1,10 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
+asyncpg
 psycopg2-binary
+aiosqlite
+pytest-asyncio
 alembic
 pydantic
 pydantic-settings

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import logging
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 
 from backend.core.config import get_settings
-from backend.core.database import SessionLocal
+from backend.core.database import AsyncSessionLocal
 from backend.models.movie import Movie
 
 
@@ -55,61 +56,76 @@ def _fetch_popular_movies(
     return movies
 
 
-def seed_tmdb_popular_movies(pages: int = 1) -> int:
+def _build_movie_row(item: dict, genre_map: dict[int, str]) -> dict | None:
+    tmdb_movie_id = item.get("id")
+    title = item.get("title")
+    if not tmdb_movie_id or not title:
+        return None
+
+    overview = item.get("overview")
+    release_date = item.get("release_date") or ""
+    release_year = (
+        int(release_date[:4])
+        if len(release_date) >= 4 and release_date[:4].isdigit()
+        else None
+    )
+    poster_path = item.get("poster_path")
+    poster_url = (
+        f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None
+    )
+
+    genre_ids = item.get("genre_ids", [])
+    genres = (
+        ", ".join(
+            genre_map[genre_id] for genre_id in genre_ids if genre_id in genre_map
+        )
+        or None
+    )
+
+    return {
+        "id": int(tmdb_movie_id),
+        "title": title,
+        "overview": overview,
+        "genres": genres,
+        "poster_url": poster_url,
+        "release_year": release_year,
+    }
+
+
+async def seed_tmdb_popular_movies(pages: int = 1) -> int:
     settings = get_settings()
     token = settings.TMDB_READ_ACCESS_TOKEN
     if not token:
         raise RuntimeError("TMDB_READ_ACCESS_TOKEN is missing in environment/.env")
 
-    inserted_or_updated = 0
     with httpx.Client() as client:
         genre_map = _get_genre_map(client, token)
         popular_movies = _fetch_popular_movies(client, token, pages)
 
-    with SessionLocal() as db:
-        for item in popular_movies:
-            tmdb_movie_id = item.get("id")
-            title = item.get("title")
-            if not tmdb_movie_id or not title:
-                continue
+    movies_data: list[dict] = []
+    for item in popular_movies:
+        row = _build_movie_row(item, genre_map)
+        if row is not None:
+            movies_data.append(row)
 
-            overview = item.get("overview")
-            release_date = item.get("release_date") or ""
-            release_year = (
-                int(release_date[:4]) if len(release_date) >= 4 and release_date[:4].isdigit() else None
-            )
-            poster_path = item.get("poster_path")
-            poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None
+    if not movies_data:
+        logger.info("Seed completed. No movies to insert.")
+        return 0
 
-            genre_ids = item.get("genre_ids", [])
-            genres = ", ".join(
-                genre_map[genre_id] for genre_id in genre_ids if genre_id in genre_map
-            ) or None
+    async with AsyncSessionLocal() as db:
+        stmt = insert(Movie).values(movies_data)
+        stmt = stmt.on_conflict_do_nothing(index_elements=["id"])
+        result = await db.execute(stmt)
+        await db.commit()
+        inserted_count = result.rowcount
 
-            existing = db.scalar(select(Movie).where(Movie.id == int(tmdb_movie_id)))
-            if existing:
-                existing.title = title
-                existing.overview = overview
-                existing.genres = genres
-                existing.poster_url = poster_url
-                existing.release_year = release_year
-            else:
-                db.add(
-                    Movie(
-                        id=int(tmdb_movie_id),
-                        title=title,
-                        overview=overview,
-                        genres=genres,
-                        poster_url=poster_url,
-                        release_year=release_year,
-                    )
-                )
-            inserted_or_updated += 1
-
-        db.commit()
-
-    logger.info("Seed completed. Inserted/updated: %s", inserted_or_updated)
-    return inserted_or_updated
+    skipped_count = len(movies_data) - inserted_count
+    logger.info(
+        "Seed completed. Inserted: %s, skipped (already exist): %s",
+        inserted_count,
+        skipped_count,
+    )
+    return inserted_count
 
 
 def main() -> None:
@@ -120,7 +136,7 @@ def main() -> None:
     if args.pages < 1:
         raise ValueError("--pages must be >= 1")
 
-    seed_tmdb_popular_movies(pages=args.pages)
+    asyncio.run(seed_tmdb_popular_movies(pages=args.pages))
 
 
 if __name__ == "__main__":

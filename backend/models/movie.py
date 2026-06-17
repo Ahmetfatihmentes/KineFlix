@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, Text
+from sqlalchemy import Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
@@ -11,8 +11,18 @@ class Movie(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     overview: Mapped[str | None] = mapped_column(Text, nullable=True)
     genres: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    themes: Mapped[str | None] = mapped_column(Text, nullable=True)
     poster_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     release_year: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    actors: Mapped[str | None] = mapped_column(Text, nullable=True)
+    director: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    tagline: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    runtime: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    letterboxd_rating: Mapped[float | None] = mapped_column(Float, nullable=True)
+    audience_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    tomato_meter: Mapped[float | None] = mapped_column(Float, nullable=True)
+    total_reviews: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    positive_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     watch_history: Mapped[list["WatchHistory"]] = relationship(
         "WatchHistory", back_populates="movie", cascade="all, delete-orphan"
@@ -20,4 +30,3 @@ class Movie(Base):
     vector: Mapped["MovieVector | None"] = relationship(
         "MovieVector", back_populates="movie", uselist=False
     )
-

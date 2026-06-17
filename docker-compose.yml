@@ -1,18 +1,14 @@
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: kineflix-backend
-    ports:
-      - "8000:8000"
+  db:
+    image: postgres:15
     environment:
-      DATABASE_URL: sqlite:////app/data/kineflix.db
-      DEBUG: "false"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kineflix
+    ports:
+      - "5432:5432"
     volumes:
-      - kineflix-sqlite:/app/data
-    restart: unless-stopped
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  kineflix-sqlite:
-    driver: local
+  postgres_data:

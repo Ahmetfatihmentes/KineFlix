@@ -3,23 +3,24 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from backend.core.database import Base, SessionLocal, engine
+from backend.core.database import AsyncSessionLocal, Base, engine
 from backend.models.movie import Movie
 
 
 logger = logging.getLogger(__name__)
 
 
-def initialize_database() -> None:
+async def initialize_database() -> None:
     """
     Create tables for local development and seed a minimal movie catalog.
     If the database itself does not exist yet, startup will fail before this step.
     """
     try:
-        Base.metadata.create_all(bind=engine)
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
 
-        with SessionLocal() as session:
-            existing_movie = session.scalar(select(Movie.id).limit(1))
+        async with AsyncSessionLocal() as session:
+            existing_movie = await session.scalar(select(Movie.id).limit(1))
             if existing_movie:
                 return
 
@@ -55,7 +56,9 @@ def initialize_database() -> None:
                     ),
                 ]
             )
-            session.commit()
+            await session.commit()
             logger.info("Seeded initial movie catalog.")
     except SQLAlchemyError:
-        logger.warning("Database bootstrap skipped because the configured database is unavailable.")
+        logger.warning(
+            "Database bootstrap skipped because the configured database is unavailable."
+        )

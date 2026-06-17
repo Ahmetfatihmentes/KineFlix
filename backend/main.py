@@ -3,15 +3,18 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from backend.api.error_handlers import register_exception_handlers
-from backend.api.routes import auth, movies, recommendations
+from backend.api.v1.api import api_router
 from backend.core.bootstrap import initialize_database
 from backend.core import logging_config
+from backend.services.recommender import movie_recommender
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    initialize_database()
+    await initialize_database()
+    await movie_recommender.start_background_initialization()
     yield
+    movie_recommender.reset()
 
 
 def create_app() -> FastAPI:
@@ -22,18 +25,10 @@ def create_app() -> FastAPI:
 
     app = FastAPI(title="KineFlix Backend", version="0.1.0", lifespan=lifespan)
 
-    # Register global exception handlers
     register_exception_handlers(app)
-
-    # Include routers
-    app.include_router(auth.router, prefix="/auth", tags=["auth"])
-    app.include_router(movies.router, prefix="/movies", tags=["movies"])
-    app.include_router(
-        recommendations.router, prefix="/movies", tags=["recommendations"]
-    )
+    app.include_router(api_router)
 
     return app
 
 
 app = create_app()
-

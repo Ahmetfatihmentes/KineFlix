@@ -10,3 +10,9 @@ __pycache__/
 venv/
 env/
 
+models/tfidf_matrix.pkl
+
+# Büyük veri dosyaları (GitHub'a yüklenmez)
+data/*.csv
+error.log
+

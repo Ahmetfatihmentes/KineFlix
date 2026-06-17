@@ -19,8 +19,14 @@ if config.config_file_name is not None:
 
 settings = get_settings()
 
-# Set SQLAlchemy URL from app settings
-config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
+# Alembic uses a synchronous driver; convert async PostgreSQL URLs.
+def _sync_database_url(url: str) -> str:
+    if url.startswith("postgresql+asyncpg"):
+        return url.replace("postgresql+asyncpg", "postgresql+psycopg2", 1)
+    return url
+
+
+config.set_main_option("sqlalchemy.url", _sync_database_url(str(settings.DATABASE_URL)))
 
 # add your model's MetaData object here
 target_metadata = Base.metadata
