@@ -12,12 +12,13 @@ router = APIRouter()
 @router.get("/search", response_model=list[MovieRead])
 async def search_movies(
     q: str = Query(..., alias="query", min_length=1),
+    content_type: str | None = Query(None, description="Movie veya TV Show"),
     db: AsyncSession = Depends(get_db),
 ) -> list[MovieRead]:
     """
     Search movies by title or overview.
     """
-    return await movie_service.search_movies(db=db, query=q)
+    return await movie_service.search_movies(db=db, query=q, content_type=content_type)
 
 
 @router.get("/{movie_id}", response_model=MovieDetailRead)
@@ -34,7 +35,7 @@ async def get_movie(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Movie not found",
         )
-    return movie
+    return movie_service.to_movie_detail_read(movie)
 
 
 @router.get("/{movie_id}/reviews", response_model=list[ReviewRead])

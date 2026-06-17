@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET_PATH = PROJECT_ROOT / "data" / "kineflix_reviews.csv"
 BATCH_SIZE = 500
+MAX_REVIEW_TEXT_LEN = 2700
 
 
 def _load_rows(dataset_path: Path) -> list[dict]:
@@ -34,6 +35,8 @@ def _load_rows(dataset_path: Path) -> list[dict]:
             review_text = (row.get("reviewText") or "").strip()
             if not movie_id_raw or not review_text:
                 continue
+            if len(review_text) > MAX_REVIEW_TEXT_LEN:
+                review_text = review_text[:MAX_REVIEW_TEXT_LEN]
 
             try:
                 movie_id = int(movie_id_raw)
@@ -68,9 +71,6 @@ async def seed_reviews(dataset_path: Path = DEFAULT_DATASET_PATH) -> int:
         for i in range(0, len(reviews_data), BATCH_SIZE):
             batch = reviews_data[i : i + BATCH_SIZE]
             stmt = insert(Review).values(batch)
-            stmt = stmt.on_conflict_do_nothing(
-                constraint="uq_reviews_movie_text_critic"
-            )
             result = await db.execute(stmt)
             inserted_total += result.rowcount
             batch_number = i // BATCH_SIZE + 1

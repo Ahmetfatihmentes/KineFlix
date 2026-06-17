@@ -71,6 +71,7 @@ def _load_rows(dataset_path: Path) -> list[dict]:
                 continue
 
             overview = (row.get("description") or "").strip() or None
+            content_type = (row.get("content_type") or "").strip() or "Movie"
             movies_by_id[parsed_id] = {
                 "id": parsed_id,
                 "title": title[:255],
@@ -88,6 +89,7 @@ def _load_rows(dataset_path: Path) -> list[dict]:
                 "tomato_meter": _parse_float(row.get("tomatoMeter")),
                 "total_reviews": _parse_int(row.get("total_reviews")),
                 "positive_pct": _parse_float(row.get("positive_pct")),
+                "content_type": content_type[:50],
             }
 
     return list(movies_by_id.values())

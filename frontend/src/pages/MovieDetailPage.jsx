@@ -62,7 +62,7 @@ export default function MovieDetailPage() {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-4">
         <p className="text-error font-body">{error || 'Film bulunamadı.'}</p>
-        <Link to="/" className="text-primary font-label uppercase">
+        <Link to="/home" className="text-primary font-label uppercase">
           Ana Sayfaya Dön
         </Link>
       </div>

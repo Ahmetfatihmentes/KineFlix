@@ -23,6 +23,7 @@ class Movie(Base):
     tomato_meter: Mapped[float | None] = mapped_column(Float, nullable=True)
     total_reviews: Mapped[int | None] = mapped_column(Integer, nullable=True)
     positive_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+    content_type: Mapped[str | None] = mapped_column(String(50), nullable=True, default="Movie")
 
     watch_history: Mapped[list["WatchHistory"]] = relationship(
         "WatchHistory", back_populates="movie", cascade="all, delete-orphan"

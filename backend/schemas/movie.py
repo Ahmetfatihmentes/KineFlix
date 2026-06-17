@@ -1,4 +1,6 @@
-from pydantic import BaseModel, ConfigDict
+from typing import Self
+
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class MovieRead(BaseModel):
@@ -10,6 +12,7 @@ class MovieRead(BaseModel):
     genres: str | None = None
     poster_url: str | None = None
     release_year: int | None = None
+    content_type: str | None = None
 
 
 class MovieDetailRead(BaseModel):
@@ -31,6 +34,13 @@ class MovieDetailRead(BaseModel):
     tomato_meter: float | None = None
     total_reviews: int | None = None
     positive_pct: float | None = None
+    content_type: str | None = None
+
+    @model_validator(mode="after")
+    def normalize_tv_rating(self) -> Self:
+        if self.content_type == "TV Show" and self.letterboxd_rating is not None:
+            self.letterboxd_rating = round(self.letterboxd_rating / 2, 1)
+        return self
 
 
 class ReviewRead(BaseModel):

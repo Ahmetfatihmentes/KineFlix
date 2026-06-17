@@ -39,7 +39,7 @@ export default function OnboardingPage() {
   const handleSubmit = () => {
     if (!canSubmit) return
     localStorage.setItem('kineflix_genres', JSON.stringify(selectedLabels))
-    navigate('/')
+    navigate('/home')
   }
 
   return (

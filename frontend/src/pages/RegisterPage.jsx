@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginUser } from '../services/api'
+import { registerUser } from '../services/api'
 
 const CINEMA_BG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCNQgGgdC2pdghzzKx2wqzBiLwpK39SheHwbeXnQy28HD7yRTCM-zVSF4pVFLv1izeqjl0HngyZw_etT1Ofjem1GLtPbwToTOhqmvvKeOUG431HZQBoTkK9CcU8fMqMtzAk3ywI5O_PAENg37d18LexnwV6Vq0Bo3fXSLCSuExMFnDvhAKhXoUv1_nT0tmWHtjZuT5DsUR78f_jOsfwKic_wZa5f6CJq4E2nN-LrnWVBTFCwmkF-tdIyz4D-8qybW6JJW1hi6HtybA'
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,15 +17,12 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      const { data } = await loginUser(email, password)
-      localStorage.setItem('kineflix_user', data.email)
-      localStorage.setItem('kineflix_token', data.access_token)
-      localStorage.setItem('kineflix_user_id', String(data.user_id))
-      const genres = localStorage.getItem('kineflix_genres')
-      navigate(genres ? '/home' : '/onboarding')
+      await registerUser(email, password)
+      localStorage.setItem('kineflix_user', email)
+      navigate('/onboarding')
     } catch (err) {
       const msg = err.response?.data?.detail
-      setError(typeof msg === 'string' ? msg : 'İşlem başarısız. Lütfen tekrar deneyin.')
+      setError(typeof msg === 'string' ? msg : 'Kayıt başarısız. Lütfen tekrar deneyin.')
     } finally {
       setLoading(false)
     }
@@ -45,11 +42,9 @@ export default function LoginPage() {
           <div className="absolute inset-0 border border-primary-container/0 group-hover:border-primary-container/20 transition-colors duration-700 rounded-xl pointer-events-none" />
           <div className="flex flex-col items-center mb-10 text-center">
             <h1 className="font-headline text-headline-lg text-primary tracking-widest mb-4">KineFlix</h1>
-            <h2 className="font-body text-title-md text-on-surface font-semibold">
-              Sinema Zekasına Hoş Geldiniz
-            </h2>
+            <h2 className="font-body text-title-md text-on-surface font-semibold">Hesap Oluştur</h2>
             <p className="font-body text-body-md text-on-surface-variant mt-2">
-              Lütfen hesabınıza giriş yapın.
+              Sinema yolculuğuna ücretsiz başla.
             </p>
           </div>
 
@@ -79,12 +74,9 @@ export default function LoginPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <div className="flex justify-between items-baseline">
-                <label className="font-label text-label-md text-on-surface-variant block uppercase" htmlFor="password">
-                  Şifre
-                </label>
-                <span className="font-label text-[12px] text-primary opacity-60">Şifremi Unuttum</span>
-              </div>
+              <label className="font-label text-label-md text-on-surface-variant block uppercase" htmlFor="password">
+                Şifre
+              </label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-secondary-container">
                   lock
@@ -107,7 +99,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-primary-container text-on-primary-container font-label text-label-md py-4 rounded uppercase tracking-widest hover:bg-primary-fixed-dim transition-all flex justify-center items-center gap-2 active:scale-95 disabled:opacity-60"
               >
-                <span>Giriş Yap</span>
+                <span>Kayıt Ol</span>
                 <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
             </div>
@@ -115,9 +107,9 @@ export default function LoginPage() {
 
           <div className="mt-8 text-center border-t border-outline-variant/30 pt-6">
             <p className="font-body text-body-md text-on-surface-variant">
-              Hesabın yok mu?{' '}
-              <Link to="/register" className="text-primary hover:text-primary-fixed-dim font-bold transition-colors">
-                Kayıt Ol
+              Zaten hesabın var mı?{' '}
+              <Link to="/login" className="text-primary hover:text-primary-fixed-dim font-bold transition-colors">
+                Giriş Yap
               </Link>
             </p>
           </div>

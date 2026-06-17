@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KineFlix | Sinema Zekası</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Source+Serif+4:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed-dim": "#adc8f5",
+                      "on-secondary": "#133155",
+                      "on-secondary-fixed": "#001c3b",
+                      "inverse-surface": "#dfe2f0",
+                      "background": "#070B14",
+                      "surface-dim": "#0f131d",
+                      "error": "#ffb4ab",
+                      "on-secondary-container": "#9fbae6",
+                      "on-primary-fixed-variant": "#584400",
+                      "surface-container": "#0D1520",
+                      "surface-bright": "#353944",
+                      "error-container": "#93000a",
+                      "surface-variant": "#31353f",
+                      "on-error-container": "#ffdad6",
+                      "on-primary-fixed": "#241a00",
+                      "secondary-fixed": "#d5e3ff",
+                      "surface": "#070B14",
+                      "on-tertiary": "#003824",
+                      "surface-tint": "#e6c364",
+                      "primary-container": "#c9a84c",
+                      "outline-variant": "#1E3A5F",
+                      "surface-container-lowest": "#070B14",
+                      "on-surface-variant": "#d0c5b2",
+                      "inverse-on-surface": "#2c303b",
+                      "on-surface": "#F0EDE4",
+                      "on-background": "#F0EDE4",
+                      "tertiary-container": "#5cbe90",
+                      "secondary": "#adc8f5",
+                      "primary-fixed-dim": "#e6c364",
+                      "tertiary-fixed": "#93f6c4",
+                      "surface-container-low": "#171c25",
+                      "on-tertiary-fixed": "#002113",
+                      "tertiary": "#78daaa",
+                      "inverse-primary": "#755b00",
+                      "on-primary": "#070B14",
+                      "secondary-container": "#2f4a70",
+                      "tertiary-fixed-dim": "#77d9a9",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "on-tertiary-container": "#004a30",
+                      "surface-container-highest": "#31353f",
+                      "primary-fixed": "#ffe08f",
+                      "on-error": "#690005",
+                      "primary": "#C9A84C",
+                      "surface-container-high": "#262a34",
+                      "on-secondary-fixed-variant": "#2d486d",
+                      "on-primary-container": "#503d00",
+                      "outline": "#C9A84C"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-desktop": "64px",
+                      "container-max": "1440px",
+                      "base": "8px",
+                      "margin-mobile": "16px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "title-md": [
+                              "\"Source Serif 4\""
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-md": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-lg": [
+                              "\"Source Serif 4\""
+                      ],
+                      "headline-lg-mobile": [
+                              "Bebas Neue"
+                      ],
+                      "headline-lg": [
+                              "Bebas Neue"
+                      ],
+                      "display-lg": [
+                              "Bebas Neue"
+                      ]
+              },
+              "fontSize": {
+                      "title-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        body {
+            background-color: #070B14;
+            color: #F0EDE4;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen relative overflow-x-hidden selection:bg-primary selection:text-on-primary">
+<div class="film-grain"></div>
+<!-- Navigation -->
+<nav class="fixed top-0 w-full z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/50 px-margin-mobile md:px-margin-desktop py-4 transition-all duration-300" id="navbar">
+<div class="max-w-container-max mx-auto flex justify-between items-center">
+<a class="font-headline-lg text-headline-lg text-primary tracking-widest hover:text-primary-fixed-dim transition-colors duration-300" href="#">
+                KineFlix
+            </a>
+<!-- Desktop Actions -->
+<div class="hidden md:flex items-center gap-6">
+<a class="font-label-md text-label-md text-primary border border-primary px-6 py-2 rounded hover:bg-primary hover:text-on-primary transition-all duration-300 transform hover:scale-95" href="#">
+                    Giriş Yap
+                </a>
+<a class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2 rounded hover:bg-primary-fixed-dim transition-all duration-300 transform hover:scale-95 font-bold" href="#">
+                    Kayıt Ol
+                </a>
+</div>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-primary p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu</span>
+</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative min-h-[921px] flex items-center justify-center pt-24 overflow-hidden"><img alt="Dark atmospheric cinematic background" class="absolute inset-0 w-full h-full object-cover -z-20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKeK7034oqBrcEmXTeAZez4z4rObxhjPfW1SlpPhrmS21reBmIDAw_MH39yehbCtH_0t75IhV_MEsWZnf-3GhgFCWf8ya1ukjmyJQU_EosfIcQsazGy3nrkMzxHpXqpjz4ava3W0dOGKqIFzGAwKX1xdwSV4qroupO2euI0UBXTUrafUOVQ8IpSGrbQT5ZaoufQhscnWfYZ1h2xXgXlLiRNmo6Wt9e81W6mhPDUoUOt-I8hzHBCYlUjOqOHtpmEu9XJlJelv0RZfs"/><div class="absolute inset-0 bg-gradient-to-t from-[#070B14] via-transparent to-transparent -z-10"></div><div class="absolute inset-0 bg-background/40 -z-10"></div><div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center flex flex-col items-center"><h1 class="font-display-lg text-[48px] md:text-display-lg text-on-surface mb-6 max-w-4xl drop-shadow-lg leading-tight uppercase">SİNEMANIN ZEKASI, <span class="text-primary">SENİN İÇİN</span></h1><p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-12">Yapay zeka destekli film öneri sistemi. 54.000+ film, kişisel zevkine göre seçilmiş.</p><div class="flex flex-col sm:flex-row gap-6 justify-center w-full sm:w-auto"><a class="font-label-md text-label-md bg-primary text-on-primary px-8 py-4 rounded hover:bg-primary-fixed-dim transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-95" href="#">Ücretsiz Başla <span class="material-symbols-outlined text-sm">arrow_forward</span></a><a class="font-label-md text-label-md border border-primary text-primary px-8 py-4 rounded hover:bg-primary/10 transition-all duration-300 flex items-center justify-center transform hover:scale-95" href="#nasil-calisir">Nasıl Çalışır?</a></div></div></header>
+<!-- Features Section -->
+<section class="py-24 bg-background relative" id="ozellikler">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-primary uppercase tracking-widest">NEDEN KİNEFLİX?</h2>
+<div class="w-16 h-px bg-primary mx-auto mt-4"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Feature Card 1 -->
+<div class="bg-surface-container border border-outline-variant/50 p-8 rounded-lg hover:border-primary transition-colors duration-500 group relative overflow-hidden"><div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div><div class="relative z-10 flex flex-col items-center text-center"><div class="w-16 h-16 rounded-full bg-background border border-outline-variant flex items-center justify-center mb-6 group-hover:border-primary transition-colors duration-300 drop-shadow-[0_0_10px_rgba(201,168,76,0.3)]"><span class="material-symbols-outlined text-primary text-[40px]" style="font-variation-settings: 'FILL' 1;">movie</span></div><h3 class="font-title-md text-title-md text-on-surface mb-4">Yapay Zeka Önerileri</h3><p class="font-body-md text-body-md text-on-surface-variant">İzleme geçmişine ve zevkine göre kişiselleştirilmiş film önerileri.</p></div></div>
+<!-- Feature Card 2 -->
+<div class="bg-surface-container border border-outline-variant/50 p-8 rounded-lg hover:border-primary transition-colors duration-500 group relative overflow-hidden"><div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div><div class="relative z-10 flex flex-col items-center text-center"><div class="w-16 h-16 rounded-full bg-background border border-outline-variant flex items-center justify-center mb-6 group-hover:border-primary transition-colors duration-300 drop-shadow-[0_0_10px_rgba(201,168,76,0.3)]"><span class="material-symbols-outlined text-primary text-[40px]" style="font-variation-settings: 'FILL' 1;">forum</span></div><h3 class="font-title-md text-title-md text-on-surface mb-4">Seyirci Kararı</h3><p class="font-body-md text-body-md text-on-surface-variant">238.000+ eleştirmen yorumu ile filmlerin gerçek değerini keşfet.</p></div></div>
+<!-- Feature Card 3 -->
+<div class="bg-surface-container border border-outline-variant/50 p-8 rounded-lg hover:border-primary transition-colors duration-500 group relative overflow-hidden"><div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div><div class="relative z-10 flex flex-col items-center text-center"><div class="w-16 h-16 rounded-full bg-background border border-outline-variant flex items-center justify-center mb-6 group-hover:border-primary transition-colors duration-300 drop-shadow-[0_0_10px_rgba(201,168,76,0.3)]"><span class="material-symbols-outlined text-primary text-[40px]" style="font-variation-settings: 'FILL' 1;">track_changes</span></div><h3 class="font-title-md text-title-md text-on-surface mb-4">Uyum Skoru</h3><p class="font-body-md text-body-md text-on-surface-variant">Her film için sana özel uyum yüzdesi. %96 uyumlu filmler seni bekliyor.</p></div></div>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="py-24 bg-surface-container relative border-y border-outline-variant/30" id="nasil-calisir">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-20">
+<h2 class="font-headline-lg text-headline-lg text-primary uppercase tracking-widest">NASIL ÇALIŞIR?</h2>
+<div class="w-16 h-px bg-primary mx-auto mt-4"></div>
+</div>
+<div class="relative max-w-4xl mx-auto">
+<!-- Connecting Line Desktop -->
+<div class="hidden md:block absolute top-8 left-0 w-full h-px bg-outline-variant z-0">
+<div class="absolute top-0 left-0 h-full bg-primary w-full origin-left transform scale-x-100 opacity-50"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-background border-2 border-primary flex items-center justify-center mb-6 font-headline-lg text-headline-lg text-primary shadow-[0_0_15px_rgba(201,168,76,0.3)]">
+                            1
+                        </div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Kayıt Ol</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Ücretsiz hesap oluştur, e-posta ve şifrenle saniyeler içinde başla</p>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-background border-2 border-primary flex items-center justify-center mb-6 font-headline-lg text-headline-lg text-primary shadow-[0_0_15px_rgba(201,168,76,0.3)]">
+                            2
+                        </div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Zevkini Söyle</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Favori film türlerini seç, yapay zeka seni tanısın ve öğrensin</p>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-background border-2 border-primary flex items-center justify-center mb-6 font-headline-lg text-headline-lg text-primary shadow-[0_0_15px_rgba(201,168,76,0.3)]">
+                            3
+                        </div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2">Keşfet</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Kişiselleştirilmiş uyum skorlu film önerileri seni bekliyor</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="py-24 bg-background border-b border-outline-variant/30">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 divide-y md:divide-y-0 md:divide-x divide-outline-variant/30 text-center">
+<div class="flex flex-col items-center py-6 md:py-0">
+<div class="font-display-lg text-[48px] md:text-display-lg text-primary mb-2">54.000+</div>
+<div class="font-label-md text-label-md text-on-surface-variant tracking-widest uppercase">Film &amp; Dizi</div>
+</div>
+<div class="flex flex-col items-center py-6 md:py-0">
+<div class="font-display-lg text-[48px] md:text-display-lg text-primary mb-2">238.000+</div>
+<div class="font-label-md text-label-md text-on-surface-variant tracking-widest uppercase">Eleştirmen Yorumu</div>
+</div>
+<div class="flex flex-col items-center py-6 md:py-0">
+<div class="font-display-lg text-[48px] md:text-display-lg text-primary mb-2">%94</div>
+<div class="font-label-md text-label-md text-on-surface-variant tracking-widest uppercase">Ortalama Memnuniyet</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="py-32 bg-surface-container relative overflow-hidden">
+<!-- Abstract gradient background -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none"></div>
+<div class="max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop text-center relative z-10">
+<h2 class="font-display-lg text-[40px] md:text-display-lg text-on-surface mb-6 uppercase tracking-wider">
+                SİNEMA YOLCULUĞUNA BAŞLA
+            </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12">
+                Yapay zeka seni bekliyor.
+            </p>
+<a class="inline-flex items-center justify-center gap-3 font-label-md text-label-md bg-primary text-on-primary px-10 py-5 rounded hover:bg-primary-fixed-dim transition-all duration-300 transform hover:scale-95 font-bold shadow-[0_0_30px_rgba(201,168,76,0.2)] hover:shadow-[0_0_40px_rgba(201,168,76,0.4)]" href="#">
+                Hemen Başla 
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</a>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant/30 w-full px-margin-mobile md:px-margin-desktop py-gutter">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex flex-col items-center md:items-start">
+<a class="font-headline-lg text-headline-lg text-primary tracking-widest opacity-80 hover:opacity-100 transition-opacity" href="#">
+                    KineFlix
+                </a>
+<span class="font-label-md text-label-md text-on-surface-variant mt-1">Sinema Zekası</span>
+</div>
+<nav class="flex gap-8">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300 opacity-80 hover:opacity-100" href="#">
+                    Hakkımızda
+                </a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300 opacity-80 hover:opacity-100" href="#">
+                    Gizlilik
+                </a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300 opacity-80 hover:opacity-100" href="#">
+                    İletişim
+                </a>
+</nav>
+<div class="font-body-md text-body-md text-on-surface-variant opacity-80">
+                © 2024 KineFlix. Sinema Zekası.
+            </div>
+</div>
+</footer>
+<script>
+        // Simple navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-lg', 'bg-surface/95');
+                navbar.classList.remove('bg-surface/80');
+            } else {
+                navbar.classList.remove('shadow-lg', 'bg-surface/95');
+                navbar.classList.add('bg-surface/80');
+            }
+        });
+    </script>
+</body></html>

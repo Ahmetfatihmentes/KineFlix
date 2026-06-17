@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.core.database import Base
@@ -6,14 +6,6 @@ from backend.core.database import Base
 
 class Review(Base):
     __tablename__ = "reviews"
-    __table_args__ = (
-        UniqueConstraint(
-            "movie_id",
-            "review_text",
-            "critic_name",
-            name="uq_reviews_movie_text_critic",
-        ),
-    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     movie_id: Mapped[int] = mapped_column(
