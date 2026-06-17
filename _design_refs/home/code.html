@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KineFlix - Ana Sayfa</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#93f6c4",
+                      "primary-fixed-dim": "#e6c364",
+                      "on-tertiary": "#003824",
+                      "on-secondary-fixed": "#001c3b",
+                      "surface-dim": "#0f131d",
+                      "outline": "#99907e",
+                      "on-error-container": "#ffdad6",
+                      "secondary": "#adc8f5",
+                      "on-secondary-fixed-variant": "#2d486d",
+                      "surface-variant": "#31353f",
+                      "tertiary": "#78daaa",
+                      "error": "#ffb4ab",
+                      "surface-bright": "#353944",
+                      "on-primary": "#3d2e00",
+                      "on-secondary-container": "#9fbae6",
+                      "on-primary-container": "#503d00",
+                      "on-primary-fixed": "#241a00",
+                      "inverse-primary": "#755b00",
+                      "surface-container-low": "#171c25",
+                      "surface-container": "#1b2029",
+                      "surface": "#0f131d",
+                      "on-secondary": "#133155",
+                      "tertiary-fixed-dim": "#77d9a9",
+                      "secondary-container": "#2f4a70",
+                      "surface-tint": "#e6c364",
+                      "inverse-on-surface": "#2c303b",
+                      "on-surface-variant": "#d0c5b2",
+                      "secondary-fixed": "#d5e3ff",
+                      "background": "#0f131d",
+                      "primary-fixed": "#ffe08f",
+                      "primary-container": "#c9a84c",
+                      "on-tertiary-fixed": "#002113",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "primary": "#e6c364",
+                      "on-tertiary-container": "#004a30",
+                      "inverse-surface": "#dfe2f0",
+                      "on-background": "#dfe2f0",
+                      "outline-variant": "#4d4637",
+                      "on-primary-fixed-variant": "#584400",
+                      "surface-container-highest": "#31353f",
+                      "tertiary-container": "#5cbe90",
+                      "surface-container-high": "#262a34",
+                      "surface-container-lowest": "#0a0e17",
+                      "on-error": "#690005",
+                      "on-surface": "#dfe2f0",
+                      "error-container": "#93000a",
+                      "secondary-fixed-dim": "#adc8f5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "base": "8px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Bebas Neue"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "title-md": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-md": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-lg": [
+                              "\"Source Serif 4\""
+                      ],
+                      "headline-lg-mobile": [
+                              "Bebas Neue"
+                      ],
+                      "display-lg": [
+                              "Bebas Neue"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "title-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Global Film Grain Noise */
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* Custom Ticket Edge */
+        .ticket-edge {
+            mask-image: radial-gradient(circle at 0% 50%, transparent 12px, black 13px);
+            -webkit-mask-image: radial-gradient(circle at 0% 50%, transparent 12px, black 13px);
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased overflow-x-hidden relative">
+<!-- Film Grain Overlay -->
+<div class="film-grain"></div>
+<!-- TopNavBar Component -->
+<header class="bg-surface/80 backdrop-blur-md docked full-width top-0 sticky border-b border-outline-variant/50 flat no shadows z-40">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<!-- Brand -->
+<div class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tracking-widest flex items-center gap-2">
+                KineFlix
+            </div>
+<!-- Desktop Navigation -->
+<nav class="hidden md:flex items-center gap-8 font-label-md text-label-md">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 scale-95 duration-200" href="#">Keşfet</a>
+<a class="text-on-surface-variant font-label-md hover:text-primary-fixed-dim transition-colors duration-300 scale-95 duration-200" href="#">Listelerim</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="text-primary hover:text-primary-fixed-dim transition-colors duration-300 scale-95 duration-200 flex items-center justify-center w-10 h-10 rounded-full border border-outline-variant/50 hover:border-primary/50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border border-primary/30 overflow-hidden cursor-pointer hover:border-primary transition-colors">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A moody, high-fashion portrait of a sophisticated user in a dimly lit, cinematic environment. Warm golden rim lighting contrasts with deep midnight blue shadows. The aesthetic is premium, modern, and aligned with a luxury digital cinema platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw_bogS80gsj3R4bfkFNWpSpqloZ0HA1YQ_z0Wtx22WbpY8EIZdG99WUzBm_n2OBbs8jJdnp-eddhSD4IyGyW8CFJsvbIXxy7YWZsOvA0sDQFUJGtfABHrN5HhPENPbLTMsd4AXhMISAr6n5IoPu31Kq6jaeP04oh98AVYOqnX6HHZwz0P8b_hOiAjeovjmySLGFxZr4bGKnorrYfFb8tc7PtXctltLntBsuYc5TzukIy7vAWLAMLeMU7O5sMbw7NUs6jpcPRlEVc"/>
+</div>
+</div>
+</div>
+</header>
+<main class="w-full">
+<!-- Hero Section -->
+<section class="relative w-full h-[716px] min-h-[500px] flex items-end pb-margin-desktop md:pb-24 pt-32">
+<!-- Background Image -->
+<div class="absolute inset-0 z-0">
+<img alt="Hero Sci-Fi Backdrop" class="w-full h-full object-cover" data-alt="A breathtaking, vast outer space scene reminiscent of high-end science fiction cinema. Deep obsidian space is speckled with brilliant, crisp stars and a distant glowing nebula in shades of midnight blue and subtle gold. The lighting is dramatic and moody, establishing a premium, immersive cinematic atmosphere fitting for a luxury curation platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiqzUAGr-b7aZTMI_K3PnZSkAEeKUbJ92zEKr5sVCaFWU1_rvhcEplwKnZzD3a22yHME_yk2pkGpVbJEElLo68r364rsDbUgc3jaCOw_tLQdZLfM9AgMbCvi1SUQ_5elnZLaBnD7JBSCbys4XuYWwImypWONQcX_o0RaPI8o37s0GGk4sDnd7KtEK-J1jFUw_6-r0K_tkHoCwoQVcdrbzgCcgieF6ZimZGnBQsskQgKVBHhMkso5PYFUk98FhL9JzzzG5d_5_9eNc"/>
+<!-- Gradient Overlay for readability -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-transparent"></div>
+</div>
+<!-- Content -->
+<div class="relative z-10 w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto flex flex-col md:flex-row gap-8 items-end justify-between">
+<div class="max-w-3xl">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-surface/60 backdrop-blur-md border border-primary text-primary font-label-md text-label-md rounded mb-4 shadow-[0_0_15px_rgba(201,168,76,0.15)]">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                        Yapay Zeka Uyum Skoru: %96
+                    </div>
+<h1 class="font-display-lg text-display-lg text-on-surface uppercase tracking-wider mb-2 leading-none drop-shadow-lg">
+                        YILDIZLARIN<br/><span class="text-primary">ÖTESİNDE</span>
+</h1>
+<div class="mt-8 flex flex-wrap gap-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-3 rounded uppercase tracking-wider flex items-center gap-2 hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                            Hemen İzle
+                        </button>
+<button class="bg-surface-container/50 backdrop-blur-sm border border-secondary-container text-on-surface font-label-md text-label-md px-8 py-3 rounded uppercase tracking-wider hover:border-primary transition-colors">
+                            Fragman
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Explanation Strip -->
+<div class="w-full bg-surface-container border-y border-outline-variant/30 py-4 z-20 relative">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">psychology</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+<span class="text-primary opacity-80">Bu öneriyi şundan dolayı yaptım:</span> Bilim Kurgu izleme geçmişin + %94 pozitif seyirci yorumu
+                </p>
+</div>
+</div>
+<!-- Filter Navigation -->
+<section class="py-12 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<button class="px-6 py-2 rounded-full bg-secondary-container text-on-surface font-label-md text-label-md border border-primary/50 whitespace-nowrap">Tümü</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md border border-outline-variant/30 hover:border-primary/50 hover:text-on-surface transition-colors whitespace-nowrap">Aksiyon</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md border border-outline-variant/30 hover:border-primary/50 hover:text-on-surface transition-colors whitespace-nowrap">Drama</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md border border-outline-variant/30 hover:border-primary/50 hover:text-on-surface transition-colors whitespace-nowrap">Bilim Kurgu</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md border border-outline-variant/30 hover:border-primary/50 hover:text-on-surface transition-colors whitespace-nowrap">Gerilim</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md border border-outline-variant/30 hover:border-primary/50 hover:text-on-surface transition-colors whitespace-nowrap">Belgesel</button>
+</div>
+</section>
+<!-- AI Picks Section (Ticket Style) -->
+<section class="pb-16 max-w-container-max mx-auto pl-margin-mobile md:pl-margin-desktop pr-0 overflow-hidden">
+<div class="flex items-center gap-2 mb-8 pr-margin-mobile md:pr-margin-desktop">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface uppercase tracking-wide">Yapay Zeka Seçimleri</h2>
+<span class="text-[24px]">🎬</span>
+</div>
+<div class="flex gap-6 overflow-x-auto hide-scrollbar pb-8 pr-margin-mobile md:pr-margin-desktop snap-x">
+<!-- Ticket Card 1 -->
+<article class="flex-shrink-0 w-[85vw] md:w-[600px] h-[280px] flex bg-surface-container border border-secondary-container rounded snap-center group hover:border-primary/50 transition-colors relative">
+<!-- Poster Side -->
+<div class="w-1/3 h-full relative overflow-hidden rounded-l">
+<img alt="Movie Poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A moody, high-contrast cinematic still of a solitary figure walking down a rain-slicked, neon-lit alleyway at night. The color palette features deep navy blues, stark blacks, and vibrant gold neon reflections. The atmosphere is tense, mysterious, and visually premium, fitting a luxury film curation platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7I8Ou45V8C3tX-_SRLEMM4vpAKbPprHJGqW95rqBfu1Z3tm45e4zx6xKXkyLK3eY4zmIcvIzguG-5Cb8EA4nju1oYhHmCnDWe9SSLZBGI7j0HQZx6KQbX5TYDox_VR3iL_l_oNo58zLRFgsQy-9RaWlb8tMylxbIN6L6NHxrWMOikH0MEEv52bHe_x1SBBaR6eeoQq31rV5iEK5zma_5om6EmFJ-74sCveYrz67ZRuSVfkRkGa3IeFatnS-nXmADrE0pNkGecgT4"/>
+<div class="absolute inset-0 bg-gradient-to-r from-transparent to-surface-container opacity-50"></div>
+</div>
+<!-- Ticket Dashed Line Separator -->
+<div class="w-px h-[90%] my-auto border-l-2 border-dashed border-outline-variant/30 relative z-10">
+<div class="absolute -top-4 -left-[6px] w-3 h-3 rounded-full bg-surface border border-b-0 border-secondary-container group-hover:border-primary/50 transition-colors"></div>
+<div class="absolute -bottom-4 -left-[6px] w-3 h-3 rounded-full bg-surface border border-t-0 border-secondary-container group-hover:border-primary/50 transition-colors"></div>
+</div>
+<!-- Details Side -->
+<div class="w-2/3 p-6 flex flex-col justify-between relative overflow-hidden">
+<!-- Decorative bg element -->
+<span class="material-symbols-outlined absolute -bottom-10 -right-10 text-[120px] text-surface-container-highest opacity-20 transform -rotate-12 select-none">local_movies</span>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Bilim Kurgu • 2023</span>
+<div class="flex items-center gap-1 bg-surface border border-primary/30 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-primary text-[12px]">%98</span>
+</div>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2 leading-tight">Zamanın Kıyısında</h3>
+<p class="font-body-md text-[14px] text-on-surface-variant line-clamp-3 opacity-80">
+                                Paralel evrenler arasında sıkışan bir dedektif, kendi geçmişini değiştirmeden geleceği kurtarmak zorundadır.
+                            </p>
+</div>
+<div class="relative z-10 flex items-center justify-between mt-4">
+<div class="flex gap-2">
+<span class="px-2 py-1 rounded bg-surface border border-outline-variant/30 text-[10px] font-label-md text-on-surface-variant uppercase">4K</span>
+<span class="px-2 py-1 rounded bg-surface border border-outline-variant/30 text-[10px] font-label-md text-on-surface-variant uppercase">Atmos</span>
+</div>
+<button class="w-10 h-10 rounded-full border border-primary text-primary flex items-center justify-center hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Ticket Card 2 -->
+<article class="flex-shrink-0 w-[85vw] md:w-[600px] h-[280px] flex bg-surface-container border border-secondary-container rounded snap-center group hover:border-primary/50 transition-colors relative">
+<div class="w-1/3 h-full relative overflow-hidden rounded-l">
+<img alt="Movie Poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A striking, high-contrast architectural photograph of a futuristic metropolis stretching into a hazy, twilight sky. The scene is dominated by sleek, imposing skyscrapers in deep obsidian tones, punctuated by warm, glowing gold windows. The overall aesthetic is moody, cinematic, and perfectly aligned with a premium sci-fi thriller curation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIH36rhjL7NWxF3RXyDLf-M7D_UYRrFgfts_Gs1opgAxr0lmc1amXlNgNza2uk3rxpgxvX3kcTYEEVN3UQXPTqbaRRu5Al3qcpfR6lEy6l-xHXrRg9Nms7ngjUFrkHFzjBFBeYCl6A84YDhPhPSu8sIgXe5yuEppF6oAi1xROVgOu8AeZ0LWLfbzRXu3QHql7uodZ_EWaa-KKddFz9nI-4lES993woK9VwmrR4JjlpTfGwFukiWAOPXFJkFBswtahe5aNo5mC7Vs0"/>
+<div class="absolute inset-0 bg-gradient-to-r from-transparent to-surface-container opacity-50"></div>
+</div>
+<div class="w-px h-[90%] my-auto border-l-2 border-dashed border-outline-variant/30 relative z-10">
+<div class="absolute -top-4 -left-[6px] w-3 h-3 rounded-full bg-surface border border-b-0 border-secondary-container group-hover:border-primary/50 transition-colors"></div>
+<div class="absolute -bottom-4 -left-[6px] w-3 h-3 rounded-full bg-surface border border-t-0 border-secondary-container group-hover:border-primary/50 transition-colors"></div>
+</div>
+<div class="w-2/3 p-6 flex flex-col justify-between relative overflow-hidden">
+<span class="material-symbols-outlined absolute -bottom-10 -right-10 text-[120px] text-surface-container-highest opacity-20 transform -rotate-12 select-none">local_movies</span>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Gerilim • 2024</span>
+<div class="flex items-center gap-1 bg-surface border border-primary/30 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-primary text-[12px]">%92</span>
+</div>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface mb-2 leading-tight">Gölgelerin Düşüşü</h3>
+<p class="font-body-md text-[14px] text-on-surface-variant line-clamp-3 opacity-80">
+                                Sessiz bir kasabada ortaya çıkan kadim bir sır, yerel şerifi kendi inançlarını sorgulamaya iter.
+                            </p>
+</div>
+<div class="relative z-10 flex items-center justify-between mt-4">
+<div class="flex gap-2">
+<span class="px-2 py-1 rounded bg-surface border border-outline-variant/30 text-[10px] font-label-md text-on-surface-variant uppercase">HD</span>
+</div>
+<button class="w-10 h-10 rounded-full border border-primary text-primary flex items-center justify-center hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="bg-surface-container-lowest full-width border-t border-outline-variant/30 flat relative z-40 mt-12">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-gutter max-w-container-max mx-auto gap-6">
+<div class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tracking-widest opacity-80 hover:opacity-100 transition-opacity">
+                KineFlix
+            </div>
+<nav class="flex flex-wrap justify-center gap-6 font-label-md text-label-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Hakkımızda</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Gizlilik</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">İletişim</a>
+</nav>
+<div class="font-body-md text-body-md text-on-surface-variant text-sm opacity-60">
+                © 2024 KineFlix. Sinema Zekası.
+            </div>
+</div>
+</footer>
+</body></html>
