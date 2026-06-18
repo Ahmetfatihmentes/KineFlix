@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
-import { firstGenre, formatScore, posterSrc } from '../utils/movie'
+import { firstGenre, formatScore, displayOverview, posterSrc } from '../utils/movie'
 
 export default function MovieTicketCard({ movie }) {
   const score = formatScore(movie)
   const genre = firstGenre(movie.genres)
+  const typeBadge =
+    movie.content_type === 'TV Show' ? 'DİZİ' : movie.content_type === 'Movie' ? 'FİLM' : null
 
   return (
     <article className="flex-shrink-0 w-[85vw] md:w-[600px] h-[280px] flex bg-surface-container border border-secondary-container rounded snap-center group hover:border-primary/50 transition-colors relative">
@@ -24,19 +26,26 @@ export default function MovieTicketCard({ movie }) {
           local_movies
         </span>
         <div className="relative z-10">
-          <div className="flex justify-between items-start mb-2">
+          <div className="flex justify-between items-start mb-2 gap-2">
             <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
               {genre}
               {movie.release_year ? ` • ${movie.release_year}` : ''}
             </span>
-            {score != null && (
+            <div className="flex items-center gap-2 shrink-0">
+              {typeBadge && (
+                <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/40 text-primary font-label text-[10px] uppercase">
+                  {typeBadge}
+                </span>
+              )}
+              {score != null && (
               <div className="flex items-center gap-1 bg-surface border border-primary/30 px-2 py-1 rounded">
                 <span className="material-symbols-outlined text-primary text-[14px] material-symbols-filled">
                   star
                 </span>
                 <span className="font-label text-primary text-[12px]">%{score}</span>
               </div>
-            )}
+              )}
+            </div>
           </div>
           <Link to={`/movies/${movie.id}`}>
             <h3 className="font-body text-title-md text-on-surface mb-2 leading-tight font-semibold hover:text-primary transition-colors">
@@ -44,7 +53,7 @@ export default function MovieTicketCard({ movie }) {
             </h3>
           </Link>
           <p className="font-body text-[14px] text-on-surface-variant line-clamp-3 opacity-80">
-            {movie.overview || 'Özet mevcut değil.'}
+            {displayOverview(movie) || 'Özet mevcut değil.'}
           </p>
         </div>
         <div className="relative z-10 flex items-center justify-end mt-4">

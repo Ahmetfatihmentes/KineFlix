@@ -10,12 +10,14 @@ from backend.services.recommender import movie_recommender
 async def search_movies(
     db: AsyncSession, query: str, content_type: str | None = None
 ) -> list[Movie]:
-    statement = select(Movie).where(
-        or_(
-            Movie.title.ilike(f"%{query}%"),
-            Movie.overview.ilike(f"%{query}%"),
+    statement = select(Movie)
+    if query.strip():
+        statement = statement.where(
+            or_(
+                Movie.title.ilike(f"%{query}%"),
+                Movie.overview.ilike(f"%{query}%"),
+            )
         )
-    )
     if content_type:
         statement = statement.where(Movie.content_type == content_type)
     result = await db.execute(statement)

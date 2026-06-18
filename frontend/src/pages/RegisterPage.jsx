@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerUser } from '../services/api'
+import { registerUser, loginUser } from '../services/api'
 
 const CINEMA_BG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCNQgGgdC2pdghzzKx2wqzBiLwpK39SheHwbeXnQy28HD7yRTCM-zVSF4pVFLv1izeqjl0HngyZw_etT1Ofjem1GLtPbwToTOhqmvvKeOUG431HZQBoTkK9CcU8fMqMtzAk3ywI5O_PAENg37d18LexnwV6Vq0Bo3fXSLCSuExMFnDvhAKhXoUv1_nT0tmWHtjZuT5DsUR78f_jOsfwKic_wZa5f6CJq4E2nN-LrnWVBTFCwmkF-tdIyz4D-8qybW6JJW1hi6HtybA'
@@ -17,8 +17,11 @@ export default function RegisterPage() {
     setError('')
     setLoading(true)
     try {
-      await registerUser(email, password)
-      localStorage.setItem('kineflix_user', email)
+      const response = await registerUser(email, password)
+      localStorage.setItem('kineflix_user', response.data.email)
+      const loginRes = await loginUser(email, password)
+      localStorage.setItem('kineflix_token', loginRes.data.access_token)
+      localStorage.setItem('kineflix_user_id', String(loginRes.data.user_id))
       navigate('/onboarding')
     } catch (err) {
       const msg = err.response?.data?.detail

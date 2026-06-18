@@ -14,6 +14,7 @@ from backend.models.movie import Movie
 from backend.models.movie_vector import MovieVector
 from backend.models.review import Review
 from backend.models.watch_history import WatchHistory
+from backend.models.watchlist import Watchlist
 from backend.services.recommender import TFIDF_CACHE_PATH
 
 
@@ -52,12 +53,23 @@ def _parse_float(value: str | None) -> float | None:
         return None
 
 
+def _clean_translation(value: str | None, max_len: int | None = None) -> str | None:
+    if value is None:
+        return None
+    cleaned = str(value).strip()
+    if not cleaned or cleaned.lower() == "nan":
+        return None
+    if max_len is not None:
+        return cleaned[:max_len]
+    return cleaned
+
+
 def _load_rows(dataset_path: Path) -> list[dict]:
     if not dataset_path.exists():
         raise FileNotFoundError(f"Dataset not found: {dataset_path}")
 
     movies_by_id: dict[int, dict] = {}
-    with dataset_path.open(encoding="utf-8", newline="") as csv_file:
+    with dataset_path.open(encoding="utf-8-sig", newline="") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
             movie_id = row.get("id")
@@ -71,18 +83,23 @@ def _load_rows(dataset_path: Path) -> list[dict]:
                 continue
 
             overview = (row.get("description") or "").strip() or None
+            overview_tr = _clean_translation(row.get("description_tr"))
+            tagline = (row.get("tagline") or "").strip()[:512] or None
+            tagline_tr = _clean_translation(row.get("tagline_tr"), max_len=512)
             content_type = (row.get("content_type") or "").strip() or "Movie"
             movies_by_id[parsed_id] = {
                 "id": parsed_id,
                 "title": title[:255],
                 "overview": overview,
+                "overview_tr": overview_tr,
                 "genres": (row.get("genres") or "").strip()[:255] or None,
                 "themes": (row.get("themes") or "").strip() or None,
                 "poster_url": None,
                 "release_year": _parse_release_year(row.get("date")),
                 "actors": (row.get("actors") or "").strip() or None,
                 "director": (row.get("director") or "").strip()[:255] or None,
-                "tagline": (row.get("tagline") or "").strip()[:512] or None,
+                "tagline": tagline,
+                "tagline_tr": tagline_tr,
                 "runtime": _parse_int(row.get("minute")),
                 "letterboxd_rating": _parse_float(row.get("rating")),
                 "audience_score": _parse_float(row.get("audienceScore")),
@@ -104,6 +121,7 @@ async def seed_letterboxd_dataset(dataset_path: Path = DEFAULT_DATASET_PATH) -> 
 
     async with AsyncSessionLocal() as db:
         await db.execute(delete(WatchHistory))
+        await db.execute(delete(Watchlist))
         await db.execute(delete(MovieVector))
         await db.execute(delete(Review))
         await db.execute(delete(Movie))

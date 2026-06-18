@@ -4,8 +4,18 @@ import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
 import ReviewCard from '../components/ReviewCard'
 import SentimentPanel from '../components/SentimentPanel'
-import { getMovie, getRecommendations, getReviews } from '../services/api'
-import { firstGenre, posterSrc } from '../utils/movie'
+import {
+  getMovie,
+  getRecommendations,
+  getReviews,
+  getTrailer,
+  addToWatchHistory,
+  getWatchStatus,
+  addToWatchlist,
+  removeFromWatchlist,
+  getWatchlistStatus,
+} from '../services/api'
+import { firstGenre, displayOverview, displayTagline, posterSrc } from '../utils/movie'
 
 export default function MovieDetailPage() {
   const { id } = useParams()
@@ -15,6 +25,13 @@ export default function MovieDetailPage() {
   const [loading, setLoading] = useState(true)
   const [recLoading, setRecLoading] = useState(false)
   const [error, setError] = useState('')
+  const [trailerKey, setTrailerKey] = useState(null)
+  const [showTrailer, setShowTrailer] = useState(false)
+  const [trailerLoading, setTrailerLoading] = useState(false)
+  const [watched, setWatched] = useState(false)
+  const [inWatchlist, setInWatchlist] = useState(false)
+  const [watchLoading, setWatchLoading] = useState(false)
+  const [watchlistLoading, setWatchlistLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -50,6 +67,64 @@ export default function MovieDetailPage() {
     }
   }, [id])
 
+  useEffect(() => {
+    if (!id) return
+    getWatchStatus(id)
+      .then((res) => setWatched(res.data.watched))
+      .catch(() => {})
+    getWatchlistStatus(id)
+      .then((res) => setInWatchlist(res.data.in_watchlist))
+      .catch(() => {})
+  }, [id])
+
+  const handlePlayTrailer = async () => {
+    if (trailerKey) {
+      setShowTrailer(true)
+      return
+    }
+    setTrailerLoading(true)
+    try {
+      const res = await getTrailer(id)
+      setTrailerKey(res.data.youtube_key)
+      setShowTrailer(true)
+    } catch {
+      alert('Bu film için fragman bulunamadı.')
+    } finally {
+      setTrailerLoading(false)
+    }
+  }
+
+  const handleWatch = async () => {
+    setWatchLoading(true)
+    try {
+      await addToWatchHistory(Number(id))
+      setWatched(true)
+      const query = encodeURIComponent(movie?.title || '')
+      window.open(`https://www.justwatch.com/tr/search?q=${query}`, '_blank')
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setWatchLoading(false)
+    }
+  }
+
+  const handleWatchlist = async () => {
+    setWatchlistLoading(true)
+    try {
+      if (inWatchlist) {
+        await removeFromWatchlist(Number(id))
+        setInWatchlist(false)
+      } else {
+        await addToWatchlist(Number(id))
+        setInWatchlist(true)
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setWatchlistLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
@@ -70,6 +145,8 @@ export default function MovieDetailPage() {
   }
 
   const genre = firstGenre(movie.genres)
+  const tagline = displayTagline(movie)
+  const overview = displayOverview(movie)
 
   return (
     <div className="min-h-screen relative">
@@ -86,6 +163,17 @@ export default function MovieDetailPage() {
                 className="w-full h-full object-cover"
               />
             </div>
+            <button
+              type="button"
+              onClick={handlePlayTrailer}
+              disabled={trailerLoading}
+              className="w-full mt-4 bg-primary-container text-on-primary-container px-6 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-primary transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined material-symbols-filled">
+                {trailerLoading ? 'hourglass_empty' : 'play_arrow'}
+              </span>
+              {trailerLoading ? 'Yükleniyor...' : 'Fragmanı İzle'}
+            </button>
           </div>
 
           <div className="lg:col-span-8 flex flex-col gap-8">
@@ -97,16 +185,16 @@ export default function MovieDetailPage() {
               <h1 className="font-display text-display-lg text-on-surface uppercase mt-2 leading-none">
                 {movie.title}
               </h1>
-              {movie.tagline && (
+              {tagline && (
                 <p className="font-body text-body-lg text-on-surface-variant italic mt-4">
-                  &ldquo;{movie.tagline}&rdquo;
+                  &ldquo;{tagline}&rdquo;
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4 font-body text-body-md text-on-surface-variant">
-                <p className="leading-relaxed opacity-90">{movie.overview || 'Özet mevcut değil.'}</p>
+                <p className="leading-relaxed opacity-90">{overview || 'Özet mevcut değil.'}</p>
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-outline-variant/30">
                   {movie.director && (
                     <div>
@@ -140,17 +228,29 @@ export default function MovieDetailPage() {
             <div className="flex gap-4 flex-wrap">
               <button
                 type="button"
-                className="bg-primary-container text-on-primary-container px-8 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-primary transition-colors flex items-center gap-2"
+                onClick={handleWatch}
+                disabled={watchLoading}
+                className="bg-primary-container text-on-primary-container px-8 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-primary transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined material-symbols-filled">play_arrow</span>
-                İzle
+                <span className="material-symbols-outlined material-symbols-filled">
+                  {watchLoading ? 'hourglass_empty' : watched ? 'check' : 'play_arrow'}
+                </span>
+                {watchLoading ? 'Yükleniyor...' : watched ? 'İzlendi' : 'İzle'}
               </button>
               <button
                 type="button"
-                className="border border-secondary-container text-on-surface px-8 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-secondary-container/50 transition-colors flex items-center gap-2"
+                onClick={handleWatchlist}
+                disabled={watchlistLoading}
+                className="border border-secondary-container text-on-surface px-8 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-secondary-container/50 transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined">add</span>
-                Listeye Ekle
+                <span className="material-symbols-outlined">
+                  {watchlistLoading ? 'hourglass_empty' : inWatchlist ? 'check' : 'add'}
+                </span>
+                {watchlistLoading
+                  ? 'Yükleniyor...'
+                  : inWatchlist
+                    ? 'Listemde'
+                    : 'Listeye Ekle'}
               </button>
             </div>
           </div>
@@ -210,6 +310,39 @@ export default function MovieDetailPage() {
       </main>
 
       <Footer />
+
+      {showTrailer && trailerKey && (
+        <div
+          className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowTrailer(false)}
+          role="presentation"
+        >
+          <div
+            className="relative w-full max-w-4xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Film fragmanı"
+          >
+            <button
+              type="button"
+              onClick={() => setShowTrailer(false)}
+              className="absolute -top-12 right-0 text-on-surface text-3xl leading-none hover:text-primary-container transition-colors"
+            >
+              ✕
+            </button>
+            <div className="aspect-video w-full">
+              <iframe
+                className="w-full h-full rounded border border-outline-variant/30"
+                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
+                title="Film Fragmanı"
+                allow="autoplay; encrypted-media; fullscreen"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

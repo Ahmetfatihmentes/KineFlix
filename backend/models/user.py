@@ -23,4 +23,7 @@ class User(Base):
     watch_history: Mapped[list["WatchHistory"]] = relationship(
         "WatchHistory", back_populates="user", cascade="all, delete-orphan"
     )
+    watchlist: Mapped[list["Watchlist"]] = relationship(
+        "Watchlist", back_populates="user", cascade="all, delete-orphan"
+    )
 

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import GenreChip from '../components/GenreChip'
+import { savePreferences } from '../services/api'
 
 const GENRES = [
   { id: 'sci-fi', emoji: '🚀', label: 'Bilim Kurgu' },
@@ -36,9 +37,14 @@ export default function OnboardingPage() {
     [selected],
   )
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return
     localStorage.setItem('kineflix_genres', JSON.stringify(selectedLabels))
+    try {
+      await savePreferences(selectedLabels)
+    } catch {
+      // localStorage yeterli; kullanıcıyı bloklama
+    }
     navigate('/home')
   }
 

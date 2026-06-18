@@ -1,26 +1,86 @@
-from fastapi import APIRouter, Depends
+from datetime import datetime, UTC
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from backend.core.database import get_db
+from backend.core.deps import get_current_user_id
 from backend.models.watch_history import WatchHistory
-from backend.schemas.movie import MovieRead
+from backend.schemas.movie import MovieRead, WatchHistoryItemRead
 
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[MovieRead])
-async def list_watch_history(db: AsyncSession = Depends(get_db)) -> list[MovieRead]:
-    """
-    List movies from watch history (placeholder until auth is wired).
-    """
+@router.get("/", response_model=list[WatchHistoryItemRead])
+async def list_watch_history(
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> list[WatchHistoryItemRead]:
     statement = (
         select(WatchHistory)
+        .where(WatchHistory.user_id == user_id)
         .options(selectinload(WatchHistory.movie))
-        .limit(50)
+        .order_by(WatchHistory.watched_at.desc())
+        .limit(100)
     )
     result = await db.execute(statement)
     entries = result.scalars().all()
-    return [entry.movie for entry in entries if entry.movie is not None]
+    items: list[WatchHistoryItemRead] = []
+    for entry in entries:
+        if entry.movie is None:
+            continue
+        movie_data = MovieRead.model_validate(entry.movie).model_dump()
+        items.append(WatchHistoryItemRead(**movie_data, watched_at=entry.watched_at))
+    return items
+
+
+@router.get("/{movie_id}/status")
+async def check_watch_status(
+    movie_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> dict:
+    result = await db.execute(
+        select(WatchHistory).where(
+            WatchHistory.user_id == user_id,
+            WatchHistory.movie_id == movie_id,
+        )
+    )
+    watched = result.scalar_one_or_none()
+    return {"watched": watched is not None}
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def add_to_watch_history(
+    payload: dict,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> dict:
+    movie_id = payload.get("movie_id")
+    if not movie_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="movie_id gerekli",
+        )
+
+    result = await db.execute(
+        select(WatchHistory).where(
+            WatchHistory.user_id == user_id,
+            WatchHistory.movie_id == movie_id,
+        )
+    )
+    existing = result.scalar_one_or_none()
+    if existing:
+        return {"message": "Zaten izlendi", "already_exists": True}
+
+    entry = WatchHistory(
+        user_id=user_id,
+        movie_id=int(movie_id),
+        watched_at=datetime.now(UTC),
+    )
+    db.add(entry)
+    await db.commit()
+    return {"message": "İzleme geçmişine eklendi", "already_exists": False}

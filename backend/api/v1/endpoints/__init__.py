@@ -1,3 +1,3 @@
-from . import auth, movies, recommendations, watch_history
+from . import auth, movies, recommendations, users, watch_history, watchlist
 
-__all__ = ["auth", "movies", "recommendations", "watch_history"]
+__all__ = ["auth", "movies", "recommendations", "users", "watch_history", "watchlist"]

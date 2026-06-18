@@ -33,6 +33,7 @@ export default {
         'surface-tint': '#e6c364',
         'primary-fixed': '#ffe08f',
         'primary-fixed-dim': '#e6c364',
+        'on-primary-fixed': '#241a00',
       },
       fontFamily: {
         display: ['"Bebas Neue"', 'sans-serif'],

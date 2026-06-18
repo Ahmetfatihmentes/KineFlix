@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Self
 
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -9,10 +10,22 @@ class MovieRead(BaseModel):
     id: int
     title: str
     overview: str | None = None
+    overview_tr: str | None = None
     genres: str | None = None
     poster_url: str | None = None
     release_year: int | None = None
     content_type: str | None = None
+    runtime: int | None = None
+    letterboxd_rating: float | None = None
+    positive_pct: float | None = None
+
+
+class WatchlistItemRead(MovieRead):
+    added_at: datetime
+
+
+class WatchHistoryItemRead(MovieRead):
+    watched_at: datetime
 
 
 class MovieDetailRead(BaseModel):
@@ -21,6 +34,7 @@ class MovieDetailRead(BaseModel):
     id: int
     title: str
     overview: str | None = None
+    overview_tr: str | None = None
     genres: str | None = None
     themes: str | None = None
     poster_url: str | None = None
@@ -28,6 +42,7 @@ class MovieDetailRead(BaseModel):
     actors: str | None = None
     director: str | None = None
     tagline: str | None = None
+    tagline_tr: str | None = None
     runtime: int | None = None
     letterboxd_rating: float | None = None
     audience_score: float | None = None
