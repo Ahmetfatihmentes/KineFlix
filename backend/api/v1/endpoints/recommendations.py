@@ -21,6 +21,8 @@ async def get_recommendations(
     Get recommended movies for a given movie id.
     """
     if not movie_recommender.is_ready:
+        if not movie_recommender.is_loading:
+            await movie_recommender.start_background_initialization()
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={

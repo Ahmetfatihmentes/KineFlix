@@ -35,8 +35,17 @@ export const getMovie = (id) => api.get(`/movies/${id}`)
 export const getRecommendations = (id, limit = 10) =>
   api.get(`/movies/${id}/recommendations`, { params: { limit } })
 
+export const getPersonalizedRecommendation = () => api.get('/recommendations/personalized')
+
+export const getRecommendationReason = (sourceId, recommendedId, short = false) =>
+  api.get(`/movies/${sourceId}/recommendation-reason`, {
+    params: { recommended_id: recommendedId, short },
+  })
+
 export const getReviews = (id, limit = 10) =>
   api.get(`/movies/${id}/reviews`, { params: { limit } })
+
+export const getAiReview = (id) => api.get(`/movies/${id}/ai-review`)
 
 export const getTrailer = (id) => api.get(`/movies/${id}/trailer`)
 

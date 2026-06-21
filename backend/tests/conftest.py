@@ -82,10 +82,16 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture(autouse=True)
-def reset_movie_recommender() -> Generator[None, None, None]:
+def reset_movie_recommender(tmp_path: pathlib.Path) -> Generator[None, None, None]:
+    import backend.services.recommender as recommender_module
+
+    test_cache_path = tmp_path / "tfidf_matrix.pkl"
+    original_cache_path = recommender_module.TFIDF_CACHE_PATH
+    recommender_module.TFIDF_CACHE_PATH = test_cache_path
     movie_recommender.reset()
     yield
     movie_recommender.reset()
+    recommender_module.TFIDF_CACHE_PATH = original_cache_path
 
 
 @pytest_asyncio.fixture()

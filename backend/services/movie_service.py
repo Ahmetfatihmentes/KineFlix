@@ -1,4 +1,4 @@
-from sqlalchemy import or_, select
+from sqlalchemy import case, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models.movie import Movie
@@ -11,15 +11,19 @@ async def search_movies(
     db: AsyncSession, query: str, content_type: str | None = None
 ) -> list[Movie]:
     statement = select(Movie)
-    if query.strip():
-        statement = statement.where(
-            or_(
-                Movie.title.ilike(f"%{query}%"),
-                Movie.overview.ilike(f"%{query}%"),
-            )
-        )
     if content_type:
         statement = statement.where(Movie.content_type == content_type)
+    if query.strip():
+        title_match = Movie.title.ilike(f"%{query}%")
+        overview_match = Movie.overview.ilike(f"%{query}%")
+        statement = (
+            statement.where(or_(title_match, overview_match))
+            .order_by(
+                case((title_match, 0), else_=1),
+                Movie.letterboxd_rating.desc().nulls_last(),
+            )
+            .limit(100)
+        )
     result = await db.execute(statement)
     return list(result.scalars().all())
 

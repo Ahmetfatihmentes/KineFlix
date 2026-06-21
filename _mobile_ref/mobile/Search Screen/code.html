@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KineFlix - Ara</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#16130d",
+                        "secondary-fixed": "#ffe08f",
+                        "outline": "#99907e",
+                        "error-container": "#93000a",
+                        "secondary-container": "#785d00",
+                        "inverse-primary": "#755b00",
+                        "tertiary": "#d9e2ff",
+                        "on-tertiary-container": "#3b5183",
+                        "primary-fixed-dim": "#e6c364",
+                        "inverse-on-surface": "#343029",
+                        "on-primary": "#3d2e00",
+                        "on-primary-fixed": "#241a00",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#fdd977",
+                        "surface-variant": "#38342d",
+                        "surface-bright": "#3d3931",
+                        "secondary": "#e6c364",
+                        "surface-container-highest": "#38342d",
+                        "surface-container": "#221f19",
+                        "on-tertiary": "#162f5e",
+                        "tertiary-fixed-dim": "#b0c6ff",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-tint": "#e6c364",
+                        "on-secondary": "#3d2e00",
+                        "on-secondary-fixed-variant": "#584400",
+                        "primary-fixed": "#ffe08f",
+                        "primary-container": "#e6c364",
+                        "secondary-fixed-dim": "#e6c364",
+                        "background": "#16130d",
+                        "on-primary-fixed-variant": "#584400",
+                        "surface-container-lowest": "#100e08",
+                        "outline-variant": "#4d4637",
+                        "on-tertiary-fixed-variant": "#2f4576",
+                        "on-surface": "#e9e1d7",
+                        "on-error": "#690005",
+                        "surface-container-high": "#2d2a23",
+                        "on-tertiary-fixed": "#001944",
+                        "on-primary-container": "#665000",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#d9e2ff",
+                        "surface-container-low": "#1e1b15",
+                        "on-background": "#e9e1d7",
+                        "on-surface-variant": "#d0c5b2",
+                        "primary": "#ffe090",
+                        "tertiary-container": "#b0c6ff",
+                        "surface": "#16130d",
+                        "inverse-surface": "#e9e1d7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter-mobile": "12px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "24px", "letterSpacing": "0.04em", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "32px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "32px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#0f131d] text-on-surface font-body-lg antialiased pb-24 md:pb-0 relative min-h-screen">
+<!-- Film Grain Overlay -->
+<div class="film-grain"></div>
+<!-- Main Content Area -->
+<main class="w-full max-w-[390px] mx-auto md:max-w-none pt-md px-margin-mobile relative z-10">
+<!-- Search Header -->
+<header class="mb-lg">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-md tracking-wider">ARA</h1>
+<!-- Search Input -->
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-[#1b2029] border border-white/10 focus:border-primary text-on-surface placeholder:text-on-surface-variant pl-12 pr-4 py-3 outline-none transition-colors rounded-none font-body-md text-body-md" placeholder="Film, dizi veya oyuncu ara..." type="text"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+</header>
+<!-- Filters Section -->
+<section class="mb-lg">
+<!-- Type Toggle -->
+<div class="flex gap-sm mb-md border-b border-white/10 pb-sm">
+<button class="text-primary border-b-2 border-primary pb-1 font-label-md text-label-md transition-colors px-2">Tümü</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors pb-1 font-label-md text-label-md px-2">Filmler</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors pb-1 font-label-md text-label-md px-2">Diziler</button>
+</div>
+<!-- Genre Chips -->
+<div class="flex gap-xs overflow-x-auto hide-scrollbar pb-2">
+<button class="whitespace-nowrap px-4 py-1.5 bg-primary text-[#1b2029] font-label-md text-label-md transition-colors">Aksiyon</button>
+<button class="whitespace-nowrap px-4 py-1.5 bg-[#1b2029] border border-white/10 hover:border-primary text-on-surface font-label-md text-label-md transition-colors">Dram</button>
+<button class="whitespace-nowrap px-4 py-1.5 bg-[#1b2029] border border-white/10 hover:border-primary text-on-surface font-label-md text-label-md transition-colors">Bilim Kurgu</button>
+<button class="whitespace-nowrap px-4 py-1.5 bg-[#1b2029] border border-white/10 hover:border-primary text-on-surface font-label-md text-label-md transition-colors">Gerilim</button>
+<button class="whitespace-nowrap px-4 py-1.5 bg-[#1b2029] border border-white/10 hover:border-primary text-on-surface font-label-md text-label-md transition-colors">Komedi</button>
+</div>
+</section>
+<!-- Results Grid -->
+<section class="grid grid-cols-2 gap-gutter-mobile pb-24">
+<!-- Result Card 1 -->
+<article class="group relative flex flex-col gap-xs cursor-pointer">
+<div class="relative w-full aspect-[2/3] bg-[#1b2029] border border-white/10 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A highly detailed cinematic poster for a neo-noir action film. The image features a lone, silhouetted figure standing in a neon-lit, rain-slicked alleyway at night. Deep blacks and vibrant electric blue and magenta neon lights dominate the high-contrast lighting scheme. The mood is gritty, suspenseful, and intensely atmospheric, reflecting a premium cinematic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9vJNL6RCwupE3jO9alvcl85-66lvLVfqCMhgjTUgbokalGbdaI0JkyYGhODV-YUXTmjFkCHH691RP7nmvuFt75YTypiwFnTp-BmUi6BD5FExc7JzDOnRyDJxrSS9GvFv6q5gWlWhY0jpD9fZuCr4umqoXiy0AQjiGeO6HuYM7bNMO31CNiYqBIR5tl1m0nddYWB7ajbDbAqL2y8kHl8N-Mf3NrKg586kJCp2pw9cBoweIYo7nDFk-HpDpEhuKjKwVAS1oeNoGnpM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0f131d]/90 via-transparent to-transparent"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-white">8.4</span>
+</div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface line-clamp-1 mt-1">Neon Yükseliş</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-[12px]">2024 • Film</p>
+</article>
+<!-- Result Card 2 -->
+<article class="group relative flex flex-col gap-xs cursor-pointer">
+<div class="relative w-full aspect-[2/3] bg-[#1b2029] border border-white/10 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A stunning cinematic poster for a high-concept sci-fi drama. The visual showcases a colossal, fragmented metallic ring suspended over a desolate, ash-grey desert landscape under a deep crimson sky. Sharp, dramatic shadows and a stark, minimalist composition create a sense of scale and awe. The lighting is cinematic, utilizing deep shadows and metallic highlights, fitting for a premium film platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGgzBWVK19mV5_9jSRTVVmwuROhe7yVXKoj_Ng5yY6NTkqQuhen6tm5jCiZV1A8zpAdJY9oLMIhXfjDr1z8oDUnI0zUWE0l2iWeUqvJqUCZ9jzoszFOAw8dyU-q5HazLJR_6hXKuuNymIuv09Kw6qdF9cdkSrfxhcAebkFa8ySWGeRaAWFwl2RFfhMeNir7isrY6VkyJqXL8mmsC335bWvGodcaQYfRE4gcaqk-gH6pzMwG8tEQ4akQiQNMkfOYRvvp4He8sAC7F8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0f131d]/90 via-transparent to-transparent"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-white">9.1</span>
+</div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface line-clamp-1 mt-1">Kızıl Halka</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-[12px]">2023 • Dizi</p>
+</article>
+<!-- Result Card 3 -->
+<article class="group relative flex flex-col gap-xs cursor-pointer">
+<div class="relative w-full aspect-[2/3] bg-[#1b2029] border border-white/10 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A dramatic cinematic poster for an intense psychological thriller. A close-up, fragmented portrait of a woman's face shattered like glass, with each shard reflecting a slightly different, unsettling emotion. The color palette is monochromatic with deep charcoal blacks and stark whites, punctuated by a single, sharp glint of gold in one eye. The aesthetic is sophisticated, tense, and modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmRdHC3tbbb_TXFhg_IsDjqhieyLoDRIRtcOeFsLxV-UJobRuDNq7Qm8en0uU6FWoe0Zev8lh8G4cMI7fjoPfqbuYiFzGHc1hG2-BvZsgWFFcermDOAnDuUowvjGtvkGlhTbqEx9P3bjuyMH1ZHOLx4DiE6iITeHnShnY19qCxkE4ngWDUJKiNZWoyqGBerH6g14bPWemNRuXauDGoePyyHSXFrPLK22jY2NCfnupSiiVSgrIij9NsSd6EjwptRn6FWQI2Bd7s0VY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0f131d]/90 via-transparent to-transparent"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-white">7.8</span>
+</div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface line-clamp-1 mt-1">Kırık Ayna</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-[12px]">2024 • Film</p>
+</article>
+<!-- Result Card 4 -->
+<article class="group relative flex flex-col gap-xs cursor-pointer">
+<div class="relative w-full aspect-[2/3] bg-[#1b2029] border border-white/10 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An atmospheric cinematic poster for a gritty crime syndicate drama. The composition features an opulent but decaying art deco boardroom, viewed from a low angle. Silhouettes of figures sit around a long mahogany table, illuminated only by shafts of dusty, golden light piercing through heavy, dark curtains. The mood is authoritative, dark, and luxurious, matching a premium noir aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCf43VpXAvVZVyqkfFDDjdTJC0iqPeo__Dq8CDs_7W24GwtqpJYcFKBkjj2fEt2ZChOlBRhtfBBMA3zqdPqjMxN9hcQ8zY07eW8KI9kzBZJxLg51OIAlo1HVeg3QubGMjyHLybje3nRSldwzNWSursuo3KoLeH5Wc3BL8yQqPxeDe51aQpRaESgWNrAP5yM_SXov1LXts-eV45tpQ8LD5FygA4pACRjURDNBZVgLkgO23mtdZvLFCtsX1EsqYzt1BSFBQZE5UcRTc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0f131d]/90 via-transparent to-transparent"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-white">8.9</span>
+</div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface line-clamp-1 mt-1">Hanedan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-[12px]">2022 • Dizi</p>
+</article>
+</section>
+</main>
+<!-- Bottom Nav Bar (Mobile Only) -->
+<nav class="md:hidden bg-surface-container/80 backdrop-blur-xl fixed bottom-0 w-full z-50 flex justify-around items-center h-20 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-95 transition-transform" data-icon="explore">explore</span>
+<span class="font-label-md text-label-md text-[10px]">Keşfet</span>
+</a>
+<!-- ACTIVE STATE -->
+<a class="flex flex-col items-center justify-center text-primary font-bold group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:opacity-80 transition-opacity" data-icon="search" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-md text-label-md text-[10px]">Ara</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-95 transition-transform" data-icon="format_list_bulleted">format_list_bulleted</span>
+<span class="font-label-md text-label-md text-[10px]">Listelerim</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-95 transition-transform" data-icon="person">person</span>
+<span class="font-label-md text-label-md text-[10px]">Profil</span>
+</a>
+</nav>
+</body></html>

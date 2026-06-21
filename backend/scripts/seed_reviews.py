@@ -6,9 +6,11 @@ import csv
 import logging
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
 from backend.core.database import AsyncSessionLocal
+from backend.models.movie import Movie
 from backend.models.review import Review
 
 
@@ -28,7 +30,7 @@ def _load_rows(dataset_path: Path) -> list[dict]:
     reviews: list[dict] = []
     seen: set[tuple[int, str, str | None]] = set()
 
-    with dataset_path.open(encoding="utf-8", newline="") as csv_file:
+    with dataset_path.open(encoding="utf-8-sig", newline="") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
             movie_id_raw = (row.get("lb_id") or "").strip()
@@ -44,7 +46,7 @@ def _load_rows(dataset_path: Path) -> list[dict]:
                 continue
 
             sentiment = (row.get("scoreSentiment") or "").strip() or None
-            critic_name = (row.get("criticName") or "").strip() or None
+            critic_name = (row.get("criticName") or "").strip() or "Anonim"
 
             dedupe_key = (movie_id, review_text, critic_name)
             if dedupe_key in seen:
@@ -68,8 +70,15 @@ async def seed_reviews(dataset_path: Path = DEFAULT_DATASET_PATH) -> int:
     inserted_total = 0
 
     async with AsyncSessionLocal() as db:
-        for i in range(0, len(reviews_data), BATCH_SIZE):
-            batch = reviews_data[i : i + BATCH_SIZE]
+        result = await db.execute(select(Movie.id))
+        valid_movie_ids = {row[0] for row in result.fetchall()}
+        filtered = [r for r in reviews_data if r["movie_id"] in valid_movie_ids]
+        skipped = len(reviews_data) - len(filtered)
+        if skipped:
+            logger.info("Skipping %s reviews for unknown movie ids", skipped)
+
+        for i in range(0, len(filtered), BATCH_SIZE):
+            batch = filtered[i : i + BATCH_SIZE]
             stmt = insert(Review).values(batch)
             result = await db.execute(stmt)
             inserted_total += result.rowcount
@@ -79,9 +88,8 @@ async def seed_reviews(dataset_path: Path = DEFAULT_DATASET_PATH) -> int:
 
         await db.commit()
 
-    skipped = len(reviews_data) - inserted_total
     logger.info(
-        "Review seed completed. Inserted: %s, skipped (conflict): %s",
+        "Review seed completed. Inserted: %s, skipped (unknown movie): %s",
         inserted_total,
         skipped,
     )

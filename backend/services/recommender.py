@@ -7,8 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_similarity as sk_cosine
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TFIDF_CACHE_PATH = PROJECT_ROOT / "models" / "tfidf_matrix.pkl"
+MINILM_MODEL_PATH = PROJECT_ROOT / "models" / "kineflix-finetuned-model"
+EMBEDDING_CACHE_PATH = PROJECT_ROOT / "models" / "minilm_embeddings.pkl"
 TFIDF_MAX_FEATURES = 10_000
 
 
@@ -43,11 +47,12 @@ class _TfidfCachePayload:
     index_by_id: dict[int, int]
     vectorizer: TfidfVectorizer
     matrix: Any
+    embeddings: Any = None
 
 
 class MovieRecommender:
     """
-    TF-IDF + cosine similarity recommender backed by PostgreSQL movie catalog.
+    Hybrid TF-IDF + MiniLM embedding recommender backed by PostgreSQL movie catalog.
     Matrix build runs in the background; cached matrix is persisted to disk.
     """
 
@@ -56,17 +61,26 @@ class MovieRecommender:
         self._index_by_id: dict[int, int] = {}
         self._vectorizer: TfidfVectorizer | None = None
         self._matrix = None
+        self._embeddings = None
+        self._minilm_model = None
         self._is_ready = False
         self._is_loading = False
         self._load_task: asyncio.Task[None] | None = None
 
     @property
     def is_ready(self) -> bool:
-        return self._is_ready
+        return self._is_ready and self._cache_is_valid()
 
     @property
     def is_loading(self) -> bool:
-        return self._is_loading and not self._is_ready
+        return self._is_loading and not self.is_ready
+
+    def _cache_is_valid(self) -> bool:
+        return (
+            self._matrix is not None
+            and bool(self._movies)
+            and bool(self._index_by_id)
+        )
 
     def reset(self) -> None:
         if self._load_task and not self._load_task.done():
@@ -76,17 +90,42 @@ class MovieRecommender:
         self._index_by_id = {}
         self._vectorizer = None
         self._matrix = None
+        self._embeddings = None
+        self._minilm_model = None
         self._is_ready = False
         self._is_loading = False
 
     def _build_corpus_text(self, movie: Movie) -> str:
         parts = [
-            movie.title,
-            movie.overview or "",
+            movie.title or "",
+            movie.overview_tr or movie.overview or "",
             movie.genres or "",
             movie.themes or "",
+            movie.actors or "",
+            movie.director or "",
+            movie.tagline_tr or movie.tagline or "",
         ]
         return clean_text(" ".join(part for part in parts if part))
+
+    def _build_embeddings(self, corpus: list[str]) -> None:
+        try:
+            if MINILM_MODEL_PATH.exists():
+                self._minilm_model = SentenceTransformer(str(MINILM_MODEL_PATH))
+                logger.info("Fine-tuned MiniLM modeli yüklendi.")
+            else:
+                self._minilm_model = SentenceTransformer("all-MiniLM-L6-v2")
+                logger.warning("Fine-tuned model bulunamadı, orijinal model kullanılıyor.")
+
+            self._embeddings = self._minilm_model.encode(
+                corpus,
+                batch_size=64,
+                show_progress_bar=True,
+                convert_to_numpy=True,
+            )
+            logger.info("MiniLM embeddinglari oluşturuldu: %s", self._embeddings.shape)
+        except Exception as e:
+            logger.error("MiniLM embedding hatası: %s", e)
+            self._embeddings = None
 
     async def _get_movie_count(self, db: AsyncSession) -> int:
         result = await db.execute(select(func.count()).select_from(Movie))
@@ -102,6 +141,7 @@ class MovieRecommender:
         self._index_by_id = payload.index_by_id
         self._vectorizer = payload.vectorizer
         self._matrix = payload.matrix
+        self._embeddings = getattr(payload, "embeddings", None)
 
     def _build_and_cache(self, movies_data: list[tuple[int, str]], movie_count: int) -> None:
         self._movies = []
@@ -113,8 +153,19 @@ class MovieRecommender:
             self._movies.append(_IndexedMovie(movie_id=movie_id, text=text))
             corpus.append(text)
 
+        if not corpus:
+            logger.error("Cannot build hybrid matrix: movie catalog is empty.")
+            return
+
         self._vectorizer = TfidfVectorizer(max_features=TFIDF_MAX_FEATURES)
-        self._matrix = self._vectorizer.fit_transform(corpus) if corpus else None
+        self._matrix = self._vectorizer.fit_transform(corpus)
+
+        self._build_embeddings(corpus)
+
+        if not self._cache_is_valid():
+            logger.error("Hybrid matrix build failed validation; cache not saved.")
+            return
+
         self._save_to_pickle(movie_count)
 
     def _save_to_pickle(self, movie_count: int) -> None:
@@ -125,10 +176,11 @@ class MovieRecommender:
             index_by_id=self._index_by_id,
             vectorizer=self._vectorizer,
             matrix=self._matrix,
+            embeddings=self._embeddings,
         )
         with TFIDF_CACHE_PATH.open("wb") as cache_file:
             pickle.dump(payload, cache_file)
-        logger.info("TF-IDF matrix cached to %s", TFIDF_CACHE_PATH)
+        logger.info("Hibrit cache kaydedildi: %s", TFIDF_CACHE_PATH)
 
     def _try_load_from_pickle(self, movie_count: int) -> bool:
         if not TFIDF_CACHE_PATH.exists():
@@ -138,23 +190,46 @@ class MovieRecommender:
             with TFIDF_CACHE_PATH.open("rb") as cache_file:
                 payload = pickle.load(cache_file)
         except (OSError, pickle.UnpicklingError):
-            logger.warning("Failed to read TF-IDF cache; rebuilding matrix.")
+            logger.warning("Failed to read hybrid cache; rebuilding matrix.")
             return False
 
         if not isinstance(payload, _TfidfCachePayload):
-            logger.warning("Invalid TF-IDF cache format; rebuilding matrix.")
+            logger.warning("Invalid hybrid cache format; rebuilding matrix.")
             return False
 
         if payload.movie_count != movie_count:
             logger.info(
-                "TF-IDF cache stale (movies=%s, cached=%s); rebuilding matrix.",
+                "Hybrid cache stale (movies=%s, cached=%s); rebuilding matrix.",
                 movie_count,
                 payload.movie_count,
             )
             return False
 
+        if getattr(payload, "embeddings", None) is None:
+            logger.info("Hybrid cache missing embeddings; rebuilding matrix.")
+            return False
+
+        if (
+            not payload.movies
+            or not payload.index_by_id
+            or payload.matrix is None
+            or len(payload.movies) != payload.movie_count
+            or len(payload.index_by_id) != payload.movie_count
+        ):
+            logger.warning("Hybrid cache incomplete or corrupt; rebuilding matrix.")
+            return False
+
         self._apply_cache_payload(payload)
-        logger.info("TF-IDF matrix loaded from cache (%s movies).", movie_count)
+        if not self._cache_is_valid():
+            logger.warning("Hybrid cache failed validation after load; rebuilding matrix.")
+            self._movies = []
+            self._index_by_id = {}
+            self._vectorizer = None
+            self._matrix = None
+            self._embeddings = None
+            return False
+
+        logger.info("Hybrid matrix loaded from cache (%s movies).", movie_count)
         return True
 
     async def initialize(self, db: AsyncSession) -> None:
@@ -169,7 +244,7 @@ class MovieRecommender:
 
         movies_data = await self._fetch_movies_data(db)
         await asyncio.to_thread(self._build_and_cache, movies_data, movie_count)
-        self._is_ready = True
+        self._is_ready = self._cache_is_valid()
 
     async def start_background_initialization(self) -> None:
         if self._is_ready or self._is_loading:
@@ -192,13 +267,16 @@ class MovieRecommender:
                 movies_data = await self._fetch_movies_data(db)
 
             await asyncio.to_thread(self._build_and_cache, movies_data, movie_count)
-            self._is_ready = True
-            logger.info("TF-IDF matrix built in background.")
+            self._is_ready = self._cache_is_valid()
+            if self._is_ready:
+                logger.info("Hybrid matrix built in background.")
+            else:
+                logger.error("Hybrid matrix build produced no usable data.")
         except asyncio.CancelledError:
-            logger.info("TF-IDF background build cancelled.")
+            logger.info("Hybrid background build cancelled.")
             raise
         except Exception:
-            logger.exception("TF-IDF background build failed.")
+            logger.exception("Hybrid background build failed.")
         finally:
             self._is_loading = False
 
@@ -207,21 +285,34 @@ class MovieRecommender:
         movie_id: int,
         top_k: int = 10,
     ) -> list[RecommendationCandidate]:
-        if not self._is_ready:
+        if not self.is_ready:
             return []
 
         if self._matrix is None or movie_id not in self._index_by_id:
             return []
 
         movie_index = self._index_by_id[movie_id]
-        scores = cosine_similarity(self._matrix[movie_index], self._matrix).flatten()
+
+        tfidf_scores = cosine_similarity(
+            self._matrix[movie_index], self._matrix
+        ).flatten()
+
+        if self._embeddings is not None:
+            embedding_scores = sk_cosine(
+                self._embeddings[movie_index].reshape(1, -1),
+                self._embeddings,
+            ).flatten()
+            final_scores = 0.4 * tfidf_scores + 0.6 * embedding_scores
+        else:
+            final_scores = tfidf_scores
+
         ranked = sorted(
             [
                 RecommendationCandidate(
                     movie_id=self._movies[index].movie_id,
                     score=float(score),
                 )
-                for index, score in enumerate(scores)
+                for index, score in enumerate(final_scores)
                 if self._movies[index].movie_id != movie_id
             ],
             key=lambda item: item.score,

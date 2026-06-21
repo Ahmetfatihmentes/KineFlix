@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KineFlix - Kayıt Ol</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#16130d",
+                        "secondary-fixed": "#ffe08f",
+                        "outline": "#99907e",
+                        "error-container": "#93000a",
+                        "secondary-container": "#785d00",
+                        "inverse-primary": "#755b00",
+                        "tertiary": "#d9e2ff",
+                        "on-tertiary-container": "#3b5183",
+                        "primary-fixed-dim": "#e6c364",
+                        "inverse-on-surface": "#343029",
+                        "on-primary": "#3d2e00",
+                        "on-primary-fixed": "#241a00",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#fdd977",
+                        "surface-variant": "#38342d",
+                        "surface-bright": "#3d3931",
+                        "secondary": "#e6c364",
+                        "surface-container-highest": "#38342d",
+                        "surface-container": "#221f19",
+                        "on-tertiary": "#162f5e",
+                        "tertiary-fixed-dim": "#b0c6ff",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-tint": "#e6c364",
+                        "on-secondary": "#3d2e00",
+                        "on-secondary-fixed-variant": "#584400",
+                        "primary-fixed": "#ffe08f",
+                        "primary-container": "#e6c364",
+                        "secondary-fixed-dim": "#e6c364",
+                        "background": "#16130d",
+                        "on-primary-fixed-variant": "#584400",
+                        "surface-container-lowest": "#100e08",
+                        "outline-variant": "#4d4637",
+                        "on-tertiary-fixed-variant": "#2f4576",
+                        "on-surface": "#e9e1d7",
+                        "on-error": "#690005",
+                        "surface-container-high": "#2d2a23",
+                        "on-tertiary-fixed": "#001944",
+                        "on-primary-container": "#665000",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#d9e2ff",
+                        "surface-container-low": "#1e1b15",
+                        "on-background": "#e9e1d7",
+                        "on-surface-variant": "#d0c5b2",
+                        "primary": "#ffe090",
+                        "tertiary-container": "#b0c6ff",
+                        "surface": "#16130d",
+                        "inverse-surface": "#e9e1d7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter-mobile": "12px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "24px", "letterSpacing": "0.04em", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "32px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        /* Custom styles for sharp edges as per guidance */
+        .sharp-edges {
+            border-radius: 0 !important;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#0f131d] text-on-background antialiased min-h-screen flex flex-col items-center justify-center relative px-margin-mobile">
+<div class="film-grain"></div>
+<div class="w-full max-w-[390px] relative z-10 flex flex-col min-h-screen pt-12 pb-8">
+<!-- Header -->
+<header class="w-full text-center mb-xl">
+<h1 class="font-display-lg text-display-lg text-primary tracking-widest uppercase">KINEFLIX</h1>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col justify-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-lg text-center uppercase">KAYIT OL</h2>
+<form class="flex flex-col gap-md">
+<!-- E-Posta -->
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-on-surface-variant mb-xs uppercase" for="email">E-POSTA</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="mail">mail</span>
+<input class="w-full bg-[#1b2029] border border-white/10 text-on-surface font-body-lg text-body-lg py-sm pl-xl pr-sm sharp-edges focus:border-b-primary focus:border-t-white/10 focus:border-l-white/10 focus:border-r-white/10 focus:ring-0 transition-colors" id="email" placeholder="E-posta adresiniz" type="email"/>
+</div>
+</div>
+<!-- Şifre -->
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-on-surface-variant mb-xs uppercase" for="password">ŞİFRE</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="lock">lock</span>
+<input class="w-full bg-[#1b2029] border border-white/10 text-on-surface font-body-lg text-body-lg py-sm pl-xl pr-sm sharp-edges focus:border-b-primary focus:border-t-white/10 focus:border-l-white/10 focus:border-r-white/10 focus:ring-0 transition-colors" id="password" placeholder="Şifreniz" type="password"/>
+<button class="absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="visibility_off">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Şifre Onayı -->
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-on-surface-variant mb-xs uppercase" for="password_confirm">ŞİFRE ONAYI</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="lock">lock</span>
+<input class="w-full bg-[#1b2029] border border-white/10 text-on-surface font-body-lg text-body-lg py-sm pl-xl pr-sm sharp-edges focus:border-b-primary focus:border-t-white/10 focus:border-l-white/10 focus:border-r-white/10 focus:ring-0 transition-colors" id="password_confirm" placeholder="Şifrenizi tekrar girin" type="password"/>
+</div>
+</div>
+<!-- Action Button -->
+<button class="mt-lg w-full bg-primary text-on-primary font-title-lg text-title-lg py-md sharp-edges hover:bg-primary-fixed transition-colors active:scale-95 flex items-center justify-center gap-xs uppercase" type="submit">
+                    KAYIT OL
+                    <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<div class="mt-xl text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Zaten üye misiniz? <a class="text-primary hover:underline ml-xs" href="#">Giriş Yap</a>
+</p>
+</div>
+</main>
+<!-- Footer Links -->
+<footer class="mt-auto pt-lg border-t border-outline-variant/50 flex justify-center gap-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Yardım</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Gizlilik</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Şartlar</a>
+</footer>
+</div>
+</body></html>

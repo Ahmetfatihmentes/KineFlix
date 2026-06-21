@@ -23,6 +23,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET_PATH = PROJECT_ROOT / "data" / "kineflix_final_dataset.csv"
+DEFAULT_POSTERS_PATH = PROJECT_ROOT / "data" / "kineflix_posters.csv"
 BATCH_SIZE = 500
 
 
@@ -64,11 +65,32 @@ def _clean_translation(value: str | None, max_len: int | None = None) -> str | N
     return cleaned
 
 
-def _load_rows(dataset_path: Path) -> list[dict]:
+def _load_posters(posters_path: Path) -> dict[int, str]:
+    if not posters_path.exists():
+        logger.warning("Poster dataset not found: %s", posters_path)
+        return {}
+
+    posters: dict[int, str] = {}
+    with posters_path.open(encoding="utf-8-sig", newline="") as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            movie_id_raw = (row.get("id") or "").strip()
+            link = (row.get("link") or "").strip()
+            if not movie_id_raw or not link:
+                continue
+            try:
+                posters[int(movie_id_raw)] = link[:512]
+            except ValueError:
+                continue
+    return posters
+
+
+def _load_rows(dataset_path: Path, posters_path: Path = DEFAULT_POSTERS_PATH) -> list[dict]:
     if not dataset_path.exists():
         raise FileNotFoundError(f"Dataset not found: {dataset_path}")
 
     movies_by_id: dict[int, dict] = {}
+    posters_by_id = _load_posters(posters_path)
     with dataset_path.open(encoding="utf-8-sig", newline="") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
@@ -94,7 +116,7 @@ def _load_rows(dataset_path: Path) -> list[dict]:
                 "overview_tr": overview_tr,
                 "genres": (row.get("genres") or "").strip()[:255] or None,
                 "themes": (row.get("themes") or "").strip() or None,
-                "poster_url": None,
+                "poster_url": posters_by_id.get(parsed_id),
                 "release_year": _parse_release_year(row.get("date")),
                 "actors": (row.get("actors") or "").strip() or None,
                 "director": (row.get("director") or "").strip()[:255] or None,
@@ -112,8 +134,13 @@ def _load_rows(dataset_path: Path) -> list[dict]:
     return list(movies_by_id.values())
 
 
-async def seed_letterboxd_dataset(dataset_path: Path = DEFAULT_DATASET_PATH) -> int:
-    movies_data = _load_rows(dataset_path)
+async def seed_letterboxd_dataset(
+    dataset_path: Path = DEFAULT_DATASET_PATH,
+    posters_path: Path = DEFAULT_POSTERS_PATH,
+) -> int:
+    movies_data = _load_rows(dataset_path, posters_path=posters_path)
+    with_posters = sum(1 for movie in movies_data if movie.get("poster_url"))
+    logger.info("Loaded %s movies, %s with poster URLs", len(movies_data), with_posters)
 
     if TFIDF_CACHE_PATH.exists():
         TFIDF_CACHE_PATH.unlink()
@@ -150,8 +177,16 @@ def main() -> None:
         default=DEFAULT_DATASET_PATH,
         help="Path to kineflix_final_dataset.csv",
     )
+    parser.add_argument(
+        "--posters",
+        type=Path,
+        default=DEFAULT_POSTERS_PATH,
+        help="Path to kineflix_posters.csv",
+    )
     args = parser.parse_args()
-    asyncio.run(seed_letterboxd_dataset(dataset_path=args.dataset))
+    asyncio.run(
+        seed_letterboxd_dataset(dataset_path=args.dataset, posters_path=args.posters)
+    )
 
 
 if __name__ == "__main__":

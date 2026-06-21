@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
-import { addToWatchlist, searchMovies } from '../services/api'
+import { addToWatchlist, getPersonalizedRecommendation, getRecommendationReason, searchMovies } from '../services/api'
 import {
   displayOverview,
   displayRatingLabel,
@@ -41,32 +41,35 @@ const GENRE_PILLS = [
   'Animasyon',
 ]
 
-const genrePillToMood = {
-  Gerilim: 'Gerilimli',
-  Dram: 'Duygusal',
-  Komedi: 'Eğlenceli',
-  Aksiyon: 'Heyecanlı',
-  'Bilim Kurgu': 'Düşündürücü',
-}
-
-const genrePillToEnglish = {
+const genreTRtoEN = {
+  Gerilim: 'Thriller',
+  Dram: 'Drama',
+  Komedi: 'Comedy',
+  Aksiyon: 'Action',
+  'Bilim Kurgu': 'Science Fiction',
   Romantik: 'Romance',
+  Macera: 'Adventure',
   Belgesel: 'Documentary',
   Animasyon: 'Animation',
 }
 
-function matchesGenre(movie, genreNeedle) {
-  return movie.genres?.toLowerCase().includes(genreNeedle.toLowerCase())
+function movieHasGenre(movie, englishGenre) {
+  const genres = movie.genres || ''
+  return genres.toLowerCase().includes(englishGenre.toLowerCase())
 }
 
 export default function HomePage() {
   const [allMovies, setAllMovies] = useState([])
   const [selectedMood, setSelectedMood] = useState(null)
-  const [selectedGenrePill, setSelectedGenrePill] = useState(null)
+  const [selectedGenre, setSelectedGenre] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [watchlistLoading, setWatchlistLoading] = useState(false)
   const [featuredInWatchlist, setFeaturedInWatchlist] = useState(false)
+  const [personalRec, setPersonalRec] = useState(null)
+  const [recReason, setRecReason] = useState(null)
+  const [reasonLoading, setReasonLoading] = useState(false)
+  const [personalLoading, setPersonalLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
@@ -88,27 +91,76 @@ export default function HomePage() {
     }
   }, [])
 
+  const fetchRecommendationReason = async (sourceId, recommendedId) => {
+    try {
+      setReasonLoading(true)
+      const { data } = await getRecommendationReason(sourceId, recommendedId)
+      setRecReason(data.reason)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setReasonLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchPersonalRec() {
+      const token = localStorage.getItem('kineflix_token')
+      if (!token) {
+        setPersonalLoading(false)
+        return
+      }
+
+      try {
+        setPersonalLoading(true)
+        const { data } = await getPersonalizedRecommendation()
+        if (cancelled) return
+        setPersonalRec(data)
+
+        if (data.type === 'personalized' && data.source_movie_id) {
+          fetchRecommendationReason(data.source_movie_id, data.recommended_movie.id)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        if (!cancelled) setPersonalLoading(false)
+      }
+    }
+
+    fetchPersonalRec()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const filteredMovies = useMemo(() => {
+    let result = allMovies
+
     if (selectedMood) {
       const genre = moodGenreMap[selectedMood]
-      return allMovies.filter((m) => matchesGenre(m, genre))
+      result = result.filter((m) => movieHasGenre(m, genre))
     }
-    if (selectedGenrePill) {
-      const mood = genrePillToMood[selectedGenrePill]
-      if (mood) {
-        const genre = moodGenreMap[mood]
-        return allMovies.filter((m) => matchesGenre(m, genre))
-      }
-      const english = genrePillToEnglish[selectedGenrePill]
-      if (english) {
-        return allMovies.filter((m) => matchesGenre(m, english))
-      }
-    }
-    return allMovies
-  }, [allMovies, selectedMood, selectedGenrePill])
 
-  const featured = filteredMovies[0]
-  const secondaryMovies = filteredMovies.slice(1, 5)
+    if (selectedGenre) {
+      const englishGenre = genreTRtoEN[selectedGenre]
+      if (englishGenre) {
+        result = result.filter((m) => movieHasGenre(m, englishGenre))
+      }
+    }
+
+    return result
+  }, [allMovies, selectedMood, selectedGenre])
+
+  const usingPersonalRec =
+    !selectedMood && !selectedGenre && Boolean(personalRec?.recommended_movie)
+  const featuredMovie = usingPersonalRec
+    ? personalRec.recommended_movie
+    : filteredMovies[0]
+  const secondaryMovies = filteredMovies
+    .filter((m) => m.id !== featuredMovie?.id)
+    .slice(0, 4)
 
   const trendingMovies = useMemo(
     () =>
@@ -119,19 +171,11 @@ export default function HomePage() {
   )
 
   const handleMoodClick = (moodKey) => {
-    setSelectedGenrePill(null)
     setSelectedMood((prev) => (prev === moodKey ? null : moodKey))
   }
 
   const handleGenrePillClick = (pill) => {
-    if (genrePillToMood[pill]) {
-      const mood = genrePillToMood[pill]
-      setSelectedGenrePill(null)
-      setSelectedMood((prev) => (prev === mood ? null : mood))
-      return
-    }
-    setSelectedMood(null)
-    setSelectedGenrePill((prev) => (prev === pill ? null : pill))
+    setSelectedGenre((prev) => (prev === pill ? null : pill))
   }
 
   const handleWatch = (title) => {
@@ -140,10 +184,10 @@ export default function HomePage() {
   }
 
   const handleAddToWatchlist = async () => {
-    if (!featured || featuredInWatchlist) return
+    if (!featuredMovie || featuredInWatchlist) return
     setWatchlistLoading(true)
     try {
-      await addToWatchlist(featured.id)
+      await addToWatchlist(featuredMovie.id)
       setFeaturedInWatchlist(true)
     } catch {
       setError('Listeye eklenemedi.')
@@ -151,6 +195,10 @@ export default function HomePage() {
       setWatchlistLoading(false)
     }
   }
+
+  useEffect(() => {
+    setFeaturedInWatchlist(false)
+  }, [featuredMovie?.id])
 
   if (loading) {
     return (
@@ -222,19 +270,26 @@ export default function HomePage() {
             <p className="font-body text-body-lg text-on-surface-variant">
               Zevklerine göre kişisel öneriler
               {selectedMood ? ` • ${selectedMood}` : ''}
+              {selectedGenre ? ` • ${selectedGenre}` : ''}
             </p>
           </div>
 
-          {featured ? (
+          {personalLoading ? (
+            <div className="animate-pulse bg-surface-container h-96 rounded-lg mb-12" />
+          ) : featuredMovie ? (
             <>
               <div className="flex flex-col md:flex-row bg-surface-container-low border border-outline-variant/50 rounded-lg overflow-hidden group mb-12 hover:border-primary/50 transition-colors duration-500">
                 <Link
-                  to={`/movies/${featured.id}`}
+                  to={
+                    personalRec?.type === 'personalized' && personalRec.source_movie_id
+                      ? `/movies/${featuredMovie.id}?from=${personalRec.source_movie_id}`
+                      : `/movies/${featuredMovie.id}`
+                  }
                   className="w-full md:w-2/5 aspect-[16/9] md:aspect-auto md:min-h-[400px] relative overflow-hidden block"
                 >
                   <img
-                    alt={featured.title}
-                    src={posterSrc(featured.poster_url)}
+                    alt={featuredMovie.title}
+                    src={posterSrc(featuredMovie.poster_url)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-surface-container-low to-transparent pointer-events-none" />
@@ -242,32 +297,48 @@ export default function HomePage() {
                 <div className="w-full md:w-3/5 p-8 md:p-12 flex flex-col justify-center">
                   <div className="flex gap-2 mb-4 flex-wrap">
                     <span className="px-2 py-1 bg-[#1E3A5F] text-inverse-surface font-label text-xs uppercase rounded-sm">
-                      {firstGenre(featured.genres)}
+                      {firstGenre(featuredMovie.genres)}
                     </span>
-                    {displayRatingLabel(featured) && (
+                    {displayRatingLabel(featuredMovie) && (
                       <span className="px-2 py-1 bg-surface-container-high border border-primary/50 text-primary font-label text-xs uppercase rounded-sm">
-                        Puan {displayRatingLabel(featured)}
+                        Puan {displayRatingLabel(featuredMovie)}
                       </span>
                     )}
                   </div>
                   <h3 className="font-headline text-headline-mobile md:text-headline-lg text-on-surface mb-4 uppercase">
-                    {featured.title}
+                    {featuredMovie.title}
                   </h3>
                   <p className="font-body text-body-md text-on-surface-variant mb-8 line-clamp-3 md:line-clamp-4">
-                    {displayOverview(featured) || 'Özet mevcut değil.'}
+                    {displayOverview(featuredMovie) || 'Özet mevcut değil.'}
                   </p>
                   <div className="border border-primary/30 bg-primary/5 p-4 rounded-sm mb-8 relative before:content-[''] before:absolute before:-left-px before:top-4 before:bottom-4 before:w-0.5 before:bg-primary">
-                    <h4 className="font-label text-primary mb-1 text-xs uppercase tracking-widest">
-                      NEDEN ÖNERİLDİ?
-                    </h4>
-                    <p className="font-body text-sm text-on-surface-variant italic">
-                      Türünde yüksek puan alan ve çok izlenen bir yapım
+                    <p className="font-label text-primary mb-2 text-xs uppercase tracking-widest">
+                      {usingPersonalRec && personalRec?.type === 'personalized'
+                        ? `✨ ${personalRec.source_movie_title} izlediğin için`
+                        : usingPersonalRec
+                          ? '⭐ Yüksek puanlı yapım'
+                          : selectedMood || selectedGenre
+                            ? '🎬 Seçtiğin türe göre'
+                            : '⭐ Önerilen yapım'}
+                    </p>
+                    <p className="font-body text-sm text-on-surface-variant">
+                      {usingPersonalRec && reasonLoading ? (
+                        <span className="animate-pulse italic">AI analizi yapılıyor...</span>
+                      ) : usingPersonalRec && recReason ? (
+                        recReason
+                      ) : usingPersonalRec && personalRec?.type === 'personalized' ? (
+                        'İzleme geçmişine göre önerildi'
+                      ) : usingPersonalRec ? (
+                        'Yüksek puanlı ve türünde öne çıkan bir yapım'
+                      ) : (
+                        'Seçtiğin mood ve türe göre listelendi'
+                      )}
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4 mt-auto">
                     <button
                       type="button"
-                      onClick={() => handleWatch(featured.title)}
+                      onClick={() => handleWatch(featuredMovie.title)}
                       className="bg-primary text-on-primary-fixed px-8 py-3 rounded-sm font-label text-label-md uppercase hover:bg-primary-fixed transition-colors flex items-center justify-center gap-2 shadow-[0_0_10px_rgba(201,168,76,0.2)]"
                     >
                       <span className="material-symbols-outlined material-symbols-filled">play_arrow</span>
@@ -366,10 +437,7 @@ export default function HomePage() {
           </h2>
           <div className="flex flex-wrap justify-center md:justify-start gap-4">
             {GENRE_PILLS.map((pill) => {
-              const mood = genrePillToMood[pill]
-              const isActive =
-                (mood && selectedMood === mood) ||
-                (selectedGenrePill === pill && !mood)
+              const isActive = selectedGenre === pill
               return (
                 <button
                   key={pill}

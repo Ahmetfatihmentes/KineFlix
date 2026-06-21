@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KineFlix - Listelerim</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#16130d",
+                        "secondary-fixed": "#ffe08f",
+                        "outline": "#99907e",
+                        "error-container": "#93000a",
+                        "secondary-container": "#785d00",
+                        "inverse-primary": "#755b00",
+                        "tertiary": "#d9e2ff",
+                        "on-tertiary-container": "#3b5183",
+                        "primary-fixed-dim": "#e6c364",
+                        "inverse-on-surface": "#343029",
+                        "on-primary": "#3d2e00",
+                        "on-primary-fixed": "#241a00",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#fdd977",
+                        "surface-variant": "#38342d",
+                        "surface-bright": "#3d3931",
+                        "secondary": "#e6c364",
+                        "surface-container-highest": "#38342d",
+                        "surface-container": "#221f19",
+                        "on-tertiary": "#162f5e",
+                        "tertiary-fixed-dim": "#b0c6ff",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-tint": "#e6c364",
+                        "on-secondary": "#3d2e00",
+                        "on-secondary-fixed-variant": "#584400",
+                        "primary-fixed": "#ffe08f",
+                        "primary-container": "#e6c364",
+                        "secondary-fixed-dim": "#e6c364",
+                        "background": "#16130d",
+                        "on-primary-fixed-variant": "#584400",
+                        "surface-container-lowest": "#100e08",
+                        "outline-variant": "#4d4637",
+                        "on-tertiary-fixed-variant": "#2f4576",
+                        "on-surface": "#e9e1d7",
+                        "on-error": "#690005",
+                        "surface-container-high": "#2d2a23",
+                        "on-tertiary-fixed": "#001944",
+                        "on-primary-container": "#665000",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#d9e2ff",
+                        "surface-container-low": "#1e1b15",
+                        "on-background": "#e9e1d7",
+                        "on-surface-variant": "#d0c5b2",
+                        "primary": "#ffe090",
+                        "tertiary-container": "#b0c6ff",
+                        "surface": "#16130d",
+                        "inverse-surface": "#e9e1d7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter-mobile": "12px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "24px", "letterSpacing": "0.04em", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "32px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "28px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0f131d;
+        }
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        .glass-nav {
+            background: rgba(34, 31, 25, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background min-h-screen relative overflow-x-hidden antialiased pb-24 pt-20">
+<div class="film-grain"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 glass-nav shadow-[0_1px_0_rgba(255,255,255,0.05)]">
+<div class="flex items-center gap-xs">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-wider">KineFlix</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors active:scale-95 transition-transform w-11 h-11 flex items-center justify-center">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/50">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close up portrait of a young person in dramatic, cinematic lighting with heavy shadows. Film noir style, glowing neon accents, highly detailed, moody atmosphere. High contrast profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTESC9ruq2TFXnrYT0MJ9kNPZXs92_YGJSyH0MNhlfacntZZaJ_B7CuUybXzqnv49iLA53zUUtPfq10NFcIO_zPI6uBCt91uH-17H9KU-gh3uq3cD1tGpsLp0e3RXm4YhZmyVP_nZe2dO8ZoljTqZOvPhFwsL0PA0JFaGS4exG_4ls62zzRF6gxi9gq3wBEnc_OHHUInKhKi2ZQHbpXgbv1Ik9iQlyr8Q0ujYSppvJO-RGdslvMI1HDGOQMOjTr-h5gOo-MgAR5YM"/>
+</button>
+</div>
+</header>
+<main class="px-margin-mobile max-w-lg mx-auto">
+<!-- Page Header -->
+<div class="pt-sm pb-lg">
+<h1 class="font-display-lg text-display-lg text-primary uppercase">LİSTELERİM</h1>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-sm overflow-x-auto pb-md scrollbar-hide">
+<button class="px-md py-sm bg-primary-container text-on-primary-container font-label-md text-label-md rounded-none whitespace-nowrap active:scale-95 transition-transform">Tümü</button>
+<button class="px-md py-sm bg-[#1b2029] text-on-surface-variant font-label-md text-label-md rounded-none whitespace-nowrap border border-white/10 hover:border-primary/50 transition-colors active:scale-95">Filmler</button>
+<button class="px-md py-sm bg-[#1b2029] text-on-surface-variant font-label-md text-label-md rounded-none whitespace-nowrap border border-white/10 hover:border-primary/50 transition-colors active:scale-95">Diziler</button>
+</div>
+<!-- Watchlist Grid -->
+<div class="grid grid-cols-2 gap-gutter-mobile">
+<!-- Movie Card 1 -->
+<div class="relative bg-[#1b2029] rounded-none border border-primary/30 aspect-[2/3] group overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+<img alt="Movie Poster" class="w-full h-full object-cover" data-alt="A striking cinematic movie poster featuring a silhouette of a detective in a trench coat standing under a lone streetlamp in a rain-slicked alleyway. Deep blacks, metallic gold title typography, moody noir atmosphere, professional studio quality lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArcyFJU74YEiJYS-VcMOEJwf9P6HeR8V0dwivaykJjtT7okPX-IgEvhYfrgkFEJMbakJPcUa-ytcs_ssDmtw4yCkeB1jauAJkiHa4gTxC3iBKHWC9wlW9asf6HXpbAXBUYoBOu_PTG9grnj7FCe5YucCYUGn7FrWu8QnVMe2dYNNYxNu0QyfwBMyYO-a5z3xqlliJWw6F9WJG_INGPvYkWelSNrnWBSiGlcHx7aifAE8Bgcau8TX-CC87CjDlW7DHsZn0eSnKc50I"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+<button class="absolute top-sm right-sm w-8 h-8 flex items-center justify-center bg-black/50 text-on-surface hover:text-primary backdrop-blur-sm active:scale-95 transition-all z-10 border border-white/10">
+<span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+</button>
+<div class="absolute bottom-0 left-0 w-full p-sm">
+<h3 class="font-title-lg text-title-lg text-on-surface truncate">The Shadow Protocol</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">2023 • Film</p>
+</div>
+</div>
+<!-- Movie Card 2 -->
+<div class="relative bg-[#1b2029] rounded-none border border-primary/30 aspect-[2/3] group overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+<img alt="Movie Poster" class="w-full h-full object-cover" data-alt="A minimalist sci-fi movie poster showing a glowing gold geometric structure floating in a vast, dark void of space. Cinematic lighting, deep shadows, premium metallic textures, high-end visual effects style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCybQ4H17Gom4goGnv8T5imhpaB9G1VSFVjNCgPRui-_Qx_K0xlJi58kHcbU0cNjgC5XELtv3ssd27mVg7g6pbyX46S4ymQFo8NrOOK1LKwIuU76DQhIgI7E0O4MimnWHn6oTinFUog4Xul89UtdghUZtq1DeSJI0Neb6wFhx5uu5gOlwKLG6DwqS14hBAhS8m_Gu6pQf-qF1eVXgZk9x3J8M3vQF4HzJs6TYOOb8vnjyXQZBf9a-43B1xMq2ILXDIWw1Bgx64vUQM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+<button class="absolute top-sm right-sm w-8 h-8 flex items-center justify-center bg-black/50 text-on-surface hover:text-primary backdrop-blur-sm active:scale-95 transition-all z-10 border border-white/10">
+<span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+</button>
+<div class="absolute bottom-0 left-0 w-full p-sm">
+<h3 class="font-title-lg text-title-lg text-on-surface truncate">Neon Echoes</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">2024 • Dizi</p>
+</div>
+</div>
+<!-- Movie Card 3 -->
+<div class="relative bg-[#1b2029] rounded-none border border-primary/30 aspect-[2/3] group overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+<img alt="Movie Poster" class="w-full h-full object-cover" data-alt="A dramatic movie poster of an intense close up on an eye reflecting a burning city. High contrast, warm golden flames against deep black shadows. Intense emotional mood, cinematic framing, 8k resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUCHOP2TUztjXasFOiTuL-nLlkUUVcV5N8YiDfM-JWQRYP5rr3RW-A65U88MIVY55MpGxtK4lWWBFOptMDfa50IuTRI0F-RH8SgdWbTdRIFaUPy_TEXF4ruclyHpo4yqKCZUdhkWzze9vA0aSAm8CTf56C2i_G0OmV5mHYvmiWPUKKLF2cG6tXfx1fpsdHXhR3LiXuyC1ea7CVgciSh-WMZTe-2-L5y1HBsbEjswxVj6Pnm3u2GyIvjl3tdM_IyVd9cbvmNtslfyk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+<button class="absolute top-sm right-sm w-8 h-8 flex items-center justify-center bg-black/50 text-on-surface hover:text-primary backdrop-blur-sm active:scale-95 transition-all z-10 border border-white/10">
+<span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+</button>
+<div class="absolute bottom-0 left-0 w-full p-sm">
+<h3 class="font-title-lg text-title-lg text-on-surface truncate">Ashes of Gold</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">2022 • Film</p>
+</div>
+</div>
+<!-- Movie Card 4 -->
+<div class="relative bg-[#1b2029] rounded-none border border-primary/30 aspect-[2/3] group overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+<div class="w-full h-full bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant" style="font-size: 48px;">movie</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+<button class="absolute top-sm right-sm w-8 h-8 flex items-center justify-center bg-black/50 text-on-surface hover:text-primary backdrop-blur-sm active:scale-95 transition-all z-10 border border-white/10">
+<span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+</button>
+<div class="absolute bottom-0 left-0 w-full p-sm">
+<h3 class="font-title-lg text-title-lg text-on-surface truncate">Midnight Velvet</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">2024 • Film</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 pb-4 glass-nav shadow-[0_-1px_0_rgba(255,255,255,0.05)] md:hidden">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 w-16 h-full">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-md text-label-md">Keşfet</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 w-16 h-full">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-label-md text-label-md">Ara</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold hover:text-primary-container transition-colors active:opacity-80 w-16 h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">format_list_bulleted</span>
+<span class="font-label-md text-label-md">Listelerim</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 w-16 h-full">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</button>
+</nav>
+<script>
+        // Simple interaction for the close buttons
+        document.querySelectorAll('button:has(.material-symbols-outlined:contains("close"))').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const card = this.closest('.group');
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.style.display = 'none';
+                }, 300);
+            });
+        });
+
+        // Add jQuery-like pseudo-selector for text content to make the above script work simply
+        // Real implementation would use more robust classes or data attributes
+        const nativeMatches = Element.prototype.matches;
+        Element.prototype.matches = function(s) {
+            const match = s.match(/:contains\("([^"]+)"\)/);
+            if (match) {
+                return this.textContent.includes(match[1]) && nativeMatches.call(this, s.replace(match[0], ''));
+            }
+            return nativeMatches.call(this, s);
+        };
+    </script>
+</body></html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KineFlix - Profil</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#16130d",
+                        "secondary-fixed": "#ffe08f",
+                        "outline": "#99907e",
+                        "error-container": "#93000a",
+                        "secondary-container": "#785d00",
+                        "inverse-primary": "#755b00",
+                        "tertiary": "#d9e2ff",
+                        "on-tertiary-container": "#3b5183",
+                        "primary-fixed-dim": "#e6c364",
+                        "inverse-on-surface": "#343029",
+                        "on-primary": "#3d2e00",
+                        "on-primary-fixed": "#241a00",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#fdd977",
+                        "surface-variant": "#38342d",
+                        "surface-bright": "#3d3931",
+                        "secondary": "#e6c364",
+                        "surface-container-highest": "#38342d",
+                        "surface-container": "#221f19",
+                        "on-tertiary": "#162f5e",
+                        "tertiary-fixed-dim": "#b0c6ff",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-tint": "#e6c364",
+                        "on-secondary": "#3d2e00",
+                        "on-secondary-fixed-variant": "#584400",
+                        "primary-fixed": "#ffe08f",
+                        "primary-container": "#e6c364",
+                        "secondary-fixed-dim": "#e6c364",
+                        "background": "#16130d",
+                        "on-primary-fixed-variant": "#584400",
+                        "surface-container-lowest": "#100e08",
+                        "outline-variant": "#4d4637",
+                        "on-tertiary-fixed-variant": "#2f4576",
+                        "on-surface": "#e9e1d7",
+                        "on-error": "#690005",
+                        "surface-container-high": "#2d2a23",
+                        "on-tertiary-fixed": "#001944",
+                        "on-primary-container": "#665000",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#d9e2ff",
+                        "surface-container-low": "#1e1b15",
+                        "on-background": "#e9e1d7",
+                        "on-surface-variant": "#d0c5b2",
+                        "primary": "#ffe090",
+                        "tertiary-container": "#b0c6ff",
+                        "surface": "#16130d",
+                        "inverse-surface": "#e9e1d7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter-mobile": "12px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "24px", "letterSpacing": "0.04em", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "32px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        body {
+            background-color: #0f131d;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background min-h-screen relative pb-24">
+<!-- Global Film Grain Overlay -->
+<div class="film-grain"></div>
+<!-- Top App Bar (From Shared Components JSON) -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-surface border-b border-outline-variant/50 backdrop-blur-md bg-opacity-80">
+<div class="flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center border border-white/10 text-on-surface font-title-lg text-sm">
+                    CD
+                </div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-wider">KineFlix</h1>
+</div>
+<button class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95 transition-transform">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-margin-mobile max-w-md mx-auto">
+<!-- Profile Header Area -->
+<section class="flex flex-col items-center mt-lg mb-xl">
+<div class="relative w-32 h-32 rounded-full border-2 border-primary-container flex items-center justify-center bg-surface-container mb-md shadow-[0_0_20px_rgba(230,195,100,0.15)]">
+<span class="font-display-lg text-display-lg text-primary-container tracking-wider">CD</span>
+<div class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-surface-container border border-primary-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</div>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface text-center uppercase tracking-widest">CAN DEMİR</h2>
+<p class="font-body-md text-body-md text-on-surface-variant text-center mt-xs">Premium Member</p>
+</section>
+<!-- Stats Row Bento Style -->
+<section class="grid grid-cols-3 gap-xs mb-xl">
+<div class="bg-surface-container rounded-DEFAULT border border-white/10 p-md flex flex-col items-center justify-center backdrop-blur-sm">
+<span class="font-headline-md text-headline-md text-primary-container">248</span>
+<span class="font-label-md text-label-md text-on-surface-variant text-center mt-xs">FİLM İZLENDİ</span>
+</div>
+<div class="bg-surface-container rounded-DEFAULT border border-white/10 p-md flex flex-col items-center justify-center backdrop-blur-sm">
+<span class="font-headline-md text-headline-md text-primary-container">12</span>
+<span class="font-label-md text-label-md text-on-surface-variant text-center mt-xs">LİSTEDE</span>
+</div>
+<div class="bg-surface-container rounded-DEFAULT border border-white/10 p-md flex flex-col items-center justify-center backdrop-blur-sm">
+<span class="font-headline-md text-headline-md text-primary-container">18</span>
+<span class="font-label-md text-label-md text-on-surface-variant text-center mt-xs">TÜR KEŞFEDİLDİ</span>
+</div>
+</section>
+<!-- Favorite Genres Progress Bars -->
+<section class="mb-xl">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md border-b border-white/10 pb-xs">FAVORİ TÜRLER</h3>
+<div class="space-y-md">
+<!-- Genre Item -->
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface">Noir</span>
+<span class="font-label-md text-label-md text-primary-container">42%</span>
+</div>
+<div class="w-full h-[2px] bg-primary-container/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 42%;"></div>
+</div>
+</div>
+<!-- Genre Item -->
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface">Sci-Fi</span>
+<span class="font-label-md text-label-md text-primary-container">28%</span>
+</div>
+<div class="w-full h-[2px] bg-primary-container/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 28%;"></div>
+</div>
+</div>
+<!-- Genre Item -->
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface">Psychological Thriller</span>
+<span class="font-label-md text-label-md text-primary-container">15%</span>
+</div>
+<div class="w-full h-[2px] bg-primary-container/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 15%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- List Items Section -->
+<section class="mb-xl bg-surface-container rounded-DEFAULT border border-white/10 overflow-hidden">
+<button class="w-full flex items-center justify-between p-md border-b border-white/10 hover:bg-white/5 transition-colors active:bg-white/10 text-left min-h-[44px]">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary-container">settings</span>
+<span class="font-body-lg text-body-lg text-on-surface">Hesap Ayarları</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-md hover:bg-white/5 transition-colors active:bg-white/10 text-left min-h-[44px]">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary-container">notifications</span>
+<span class="font-body-lg text-body-lg text-on-surface">Bildirimler</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</section>
+<!-- Ghost Button Log Out -->
+<section class="flex justify-center mb-xl">
+<button class="min-h-[44px] px-lg py-sm rounded-DEFAULT border border-error text-error font-label-md text-label-md uppercase tracking-wider hover:bg-error/10 active:bg-error/20 transition-colors">
+                Çıkış Yap
+            </button>
+</section>
+</main>
+<!-- Bottom Nav Bar (From Shared Components JSON) -->
+<!-- active_navigation logic applied to 'Profil' index 3 -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface-container dark:bg-surface-container border-t border-outline-variant/50 backdrop-blur-md bg-opacity-80">
+<div class="flex justify-around items-center h-20 pb-4">
+<button class="w-full min-h-[44px] flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-md text-label-md">Keşfet</span>
+</button>
+<button class="w-full min-h-[44px] flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-label-md text-label-md">Ara</span>
+</button>
+<button class="w-full min-h-[44px] flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined mb-1">format_list_bulleted</span>
+<span class="font-label-md text-label-md">Listelerim</span>
+</button>
+<!-- ACTIVE ITEM -->
+<button class="w-full min-h-[44px] flex flex-col items-center justify-center text-primary font-bold hover:text-primary-container transition-colors active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</button>
+</div>
+</nav>
+</body></html>

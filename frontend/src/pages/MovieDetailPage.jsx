@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
 import ReviewCard from '../components/ReviewCard'
@@ -7,8 +7,11 @@ import SentimentPanel from '../components/SentimentPanel'
 import {
   getMovie,
   getRecommendations,
+  getRecommendationReason,
   getReviews,
+  getAiReview,
   getTrailer,
+  getWatchHistory,
   addToWatchHistory,
   getWatchStatus,
   addToWatchlist,
@@ -19,6 +22,7 @@ import { firstGenre, displayOverview, displayTagline, posterSrc } from '../utils
 
 export default function MovieDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [movie, setMovie] = useState(null)
   const [reviews, setReviews] = useState([])
   const [similar, setSimilar] = useState([])
@@ -32,6 +36,13 @@ export default function MovieDetailPage() {
   const [inWatchlist, setInWatchlist] = useState(false)
   const [watchLoading, setWatchLoading] = useState(false)
   const [watchlistLoading, setWatchlistLoading] = useState(false)
+  const [whyRecommended, setWhyRecommended] = useState(null)
+  const [whyLoading, setWhyLoading] = useState(false)
+  const [reasonCache, setReasonCache] = useState({})
+  const [loadingReasons, setLoadingReasons] = useState({})
+  const [hoveredMovieId, setHoveredMovieId] = useState(null)
+  const [aiReview, setAiReview] = useState(null)
+  const [aiReviewLoading, setAiReviewLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -47,18 +58,35 @@ export default function MovieDetailPage() {
         setMovie(movieRes.data)
         setReviews(reviewsRes.data)
         setRecLoading(true)
-        const recRes = await getRecommendations(id, 8)
-        if (cancelled) return
-        const recData = recRes.data
-        if (Array.isArray(recData)) setSimilar(recData)
-        else if (recData?.status === 'loading') setSimilar([])
+        const loadRecommendations = async (attempt = 0) => {
+          try {
+            const recRes = await getRecommendations(id, 8)
+            if (cancelled) return
+            const recData = recRes.data
+            if (Array.isArray(recData)) {
+              setSimilar(recData)
+              setRecLoading(false)
+              return
+            }
+            if (recData?.status === 'loading' && attempt < 40) {
+              await new Promise((resolve) => setTimeout(resolve, 3000))
+              if (!cancelled) loadRecommendations(attempt + 1)
+              return
+            }
+            setSimilar([])
+            setRecLoading(false)
+          } catch {
+            if (!cancelled) {
+              setSimilar([])
+              setRecLoading(false)
+            }
+          }
+        }
+        await loadRecommendations()
       } catch {
         if (!cancelled) setError('Film bulunamadı veya sunucu hatası.')
       } finally {
-        if (!cancelled) {
-          setLoading(false)
-          setRecLoading(false)
-        }
+        if (!cancelled) setLoading(false)
       }
     }
     load()
@@ -66,6 +94,89 @@ export default function MovieDetailPage() {
       cancelled = true
     }
   }, [id])
+
+  useEffect(() => {
+    if (!id || !movie) return
+
+    setWhyRecommended(null)
+
+    const fetchWhyRecommended = async (sourceId, recommendedId) => {
+      setWhyLoading(true)
+      try {
+        const { data } = await getRecommendationReason(sourceId, recommendedId)
+        setWhyRecommended(data)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setWhyLoading(false)
+      }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const sourceMovieId = urlParams.get('from')
+
+    if (sourceMovieId) {
+      fetchWhyRecommended(sourceMovieId, id)
+      return
+    }
+
+    const token = localStorage.getItem('kineflix_token')
+    if (!token) return
+
+    getWatchHistory()
+      .then((res) => {
+        const history = Array.isArray(res.data) ? res.data : []
+        const lastWatched = history.find((h) => h.id !== parseInt(id, 10))
+        if (lastWatched) {
+          fetchWhyRecommended(lastWatched.id, id)
+        }
+      })
+      .catch(console.error)
+  }, [id, movie])
+
+  useEffect(() => {
+    if (!id || !movie) return
+
+    let cancelled = false
+
+    const fetchAiReview = async () => {
+      setAiReviewLoading(true)
+      setAiReview(null)
+      try {
+        const { data } = await getAiReview(id)
+        if (cancelled) return
+        if (data.has_reviews && data.ai_review) {
+          setAiReview(data)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        if (!cancelled) setAiReviewLoading(false)
+      }
+    }
+
+    fetchAiReview()
+
+    return () => {
+      cancelled = true
+    }
+  }, [id, movie])
+
+  const fetchShortReason = async (recommendedId) => {
+    if (reasonCache[recommendedId] || loadingReasons[recommendedId]) return
+
+    setLoadingReasons((prev) => ({ ...prev, [recommendedId]: true }))
+
+    try {
+      const { data } = await getRecommendationReason(id, recommendedId, true)
+      setReasonCache((prev) => ({ ...prev, [recommendedId]: data.reason }))
+    } catch (e) {
+      console.error(e)
+      setReasonCache((prev) => ({ ...prev, [recommendedId]: 'Benzer türde bir yapım.' }))
+    } finally {
+      setLoadingReasons((prev) => ({ ...prev, [recommendedId]: false }))
+    }
+  }
 
   useEffect(() => {
     if (!id) return
@@ -225,6 +336,30 @@ export default function MovieDetailPage() {
               />
             </div>
 
+            {(whyLoading || whyRecommended) && (
+              <div className="border-l-2 border-primary pl-4 my-4">
+                <p className="text-primary text-xs font-label-md uppercase mb-2">
+                  ✨ Neden Önerildi?
+                </p>
+                {whyLoading ? (
+                  <p className="text-on-surface-variant text-sm animate-pulse">
+                    AI analizi yapılıyor...
+                  </p>
+                ) : (
+                  <>
+                    {whyRecommended?.source_movie && (
+                      <p className="text-primary-container text-xs mb-1">
+                        {whyRecommended.source_movie} izlediğin için
+                      </p>
+                    )}
+                    <p className="text-on-surface-variant text-sm leading-relaxed">
+                      {whyRecommended?.reason}
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-4 flex-wrap">
               <button
                 type="button"
@@ -257,6 +392,39 @@ export default function MovieDetailPage() {
         </div>
 
         <section className="mb-24">
+          {(aiReviewLoading || aiReview) && (
+            <div className="mb-8 border border-primary/30 rounded-lg p-5 bg-surface-container">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-primary text-lg">🤖</span>
+                <h3 className="text-primary font-label-md uppercase text-sm tracking-wider">
+                  AI Eleştirmen Değerlendirmesi
+                </h3>
+              </div>
+
+              {aiReviewLoading ? (
+                <div className="space-y-2">
+                  <div className="h-3 bg-surface-container-high rounded animate-pulse w-full" />
+                  <div className="h-3 bg-surface-container-high rounded animate-pulse w-4/5" />
+                  <div className="h-3 bg-surface-container-high rounded animate-pulse w-3/5" />
+                  <p className="text-on-surface-variant text-xs mt-2 animate-pulse">
+                    AI analizi yapılıyor...
+                  </p>
+                </div>
+              ) : aiReview?.ai_review ? (
+                <>
+                  <p className="text-on-surface text-sm leading-relaxed">
+                    {aiReview.ai_review}
+                  </p>
+                  {aiReview.review_count ? (
+                    <p className="text-on-surface-variant text-xs mt-3">
+                      📊 {aiReview.review_count} eleştirmen yorumu analiz edildi
+                    </p>
+                  ) : null}
+                </>
+              ) : null}
+            </div>
+          )}
+
           <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4 mb-8">
             <h2 className="font-headline text-headline-lg text-on-surface uppercase">
               Eleştirmen Yorumları
@@ -284,10 +452,23 @@ export default function MovieDetailPage() {
           ) : (
             <div className="flex gap-6 overflow-x-auto pb-8 snap-x hide-scrollbar">
               {similar.map((m) => (
-                <Link
+                <div
                   key={m.id}
-                  to={`/movies/${m.id}`}
-                  className="min-w-[160px] md:min-w-[200px] flex-shrink-0 snap-start group"
+                  className="min-w-[160px] md:min-w-[200px] flex-shrink-0 snap-start relative cursor-pointer group"
+                  onMouseEnter={() => {
+                    setHoveredMovieId(m.id)
+                    fetchShortReason(m.id)
+                  }}
+                  onMouseLeave={() => setHoveredMovieId(null)}
+                  onClick={() => navigate(`/movies/${m.id}?from=${id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      navigate(`/movies/${m.id}?from=${id}`)
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="aspect-[2/3] rounded border border-outline-variant/20 overflow-hidden relative mb-3 group-hover:border-primary-container/50 transition-colors">
                     <img
@@ -295,6 +476,22 @@ export default function MovieDetailPage() {
                       src={posterSrc(m.poster_url)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
+                    {hoveredMovieId === m.id && (
+                      <div className="absolute inset-0 bg-black/85 rounded flex flex-col justify-end p-3 z-10">
+                        <p className="text-primary text-xs font-label-md uppercase mb-1">
+                          Neden Önerildi?
+                        </p>
+                        {loadingReasons[m.id] ? (
+                          <p className="text-on-surface-variant text-xs animate-pulse">
+                            Yükleniyor...
+                          </p>
+                        ) : (
+                          <p className="text-on-surface text-xs leading-relaxed line-clamp-4">
+                            {reasonCache[m.id] || 'Benzer türde bir yapım.'}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <h4 className="font-body text-[16px] font-semibold text-on-surface group-hover:text-primary-container transition-colors truncate">
                     {m.title}
@@ -302,7 +499,7 @@ export default function MovieDetailPage() {
                   <p className="font-label text-[12px] text-on-surface-variant uppercase">
                     {m.release_year || '—'}
                   </p>
-                </Link>
+                </div>
               ))}
             </div>
           )}

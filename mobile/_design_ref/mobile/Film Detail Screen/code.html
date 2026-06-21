@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SESSİZ YANKILAR - KineFlix</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#16130d",
+                        "secondary-fixed": "#ffe08f",
+                        "outline": "#99907e",
+                        "error-container": "#93000a",
+                        "secondary-container": "#785d00",
+                        "inverse-primary": "#755b00",
+                        "tertiary": "#d9e2ff",
+                        "on-tertiary-container": "#3b5183",
+                        "primary-fixed-dim": "#e6c364",
+                        "inverse-on-surface": "#343029",
+                        "on-primary": "#3d2e00",
+                        "on-primary-fixed": "#241a00",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#fdd977",
+                        "surface-variant": "#38342d",
+                        "surface-bright": "#3d3931",
+                        "secondary": "#e6c364",
+                        "surface-container-highest": "#38342d",
+                        "surface-container": "#221f19",
+                        "on-tertiary": "#162f5e",
+                        "tertiary-fixed-dim": "#b0c6ff",
+                        "on-secondary-fixed": "#241a00",
+                        "surface-tint": "#e6c364",
+                        "on-secondary": "#3d2e00",
+                        "on-secondary-fixed-variant": "#584400",
+                        "primary-fixed": "#ffe08f",
+                        "primary-container": "#e6c364",
+                        "secondary-fixed-dim": "#e6c364",
+                        "background": "#16130d",
+                        "on-primary-fixed-variant": "#584400",
+                        "surface-container-lowest": "#100e08",
+                        "outline-variant": "#4d4637",
+                        "on-tertiary-fixed-variant": "#2f4576",
+                        "on-surface": "#e9e1d7",
+                        "on-error": "#690005",
+                        "surface-container-high": "#2d2a23",
+                        "on-tertiary-fixed": "#001944",
+                        "on-primary-container": "#665000",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#d9e2ff",
+                        "surface-container-low": "#1e1b15",
+                        "on-background": "#e9e1d7",
+                        "on-surface-variant": "#d0c5b2",
+                        "primary": "#ffe090",
+                        "tertiary-container": "#b0c6ff",
+                        "surface": "#16130d",
+                        "inverse-surface": "#e9e1d7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter-mobile": "12px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "24px", "letterSpacing": "0.04em", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "32px", "letterSpacing": "0.03em", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        /* Custom scrollbar for horizontal lists */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .poster-gradient {
+            background: linear-gradient(to top, #16130d 0%, rgba(22, 19, 13, 0.8) 30%, rgba(22, 19, 13, 0) 100%);
+        }
+        
+        .glass-nav {
+            background: rgba(34, 31, 25, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased min-h-screen relative pb-24">
+<!-- Film Grain Overlay -->
+<div class="film-grain"></div>
+<!-- Top AppBar (Transparent overlay on detail screen) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 pointer-events-auto">
+<button aria-label="Geri" class="w-11 h-11 flex items-center justify-center rounded-full bg-surface-container/50 backdrop-blur-md border border-white/10 text-on-surface hover:text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<button aria-label="Paylaş" class="w-11 h-11 flex items-center justify-center rounded-full bg-surface-container/50 backdrop-blur-md border border-white/10 text-on-surface hover:text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined">share</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-[390px] mx-auto relative md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
+<!-- Hero Poster Section -->
+<section class="relative w-full aspect-[4/5] md:aspect-[16/9] lg:aspect-[21/9]">
+<div class="absolute inset-0 w-full h-full" data-alt="A highly detailed, cinematic movie poster showing a lone detective in a dark, rain-slicked neon-lit alleyway. Deep blacks, high contrast shadows, metallic gold accents on the title styling. Noir aesthetic, professional color grading, sophisticated minimal composition. The lighting evokes mystery and high-end drama." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAfxt57L3Km9p5YmaJxXs-yQdDcnaaZwEDngP8HcSKJd3H0d9fIj8fvv1D_Tvlf3E51GjqdActJ9J4gNFlz-trPC_A4s5avR4BYSNB0eAH3OYqTHqxBjroVtAep4YkxhYmrED6pohjHrg1OCmsdRpU_kZxV5xkodczJZyZTuA4bdQ6ZbwEwzMRtuNshoPZ6R2_-yIR5wei8z1SOmx8UupqoxOqOprAoYuFN7cg1kDu20OmltgV2Qj71-dZnd4RL1gusg0y9TFPco84')"></div>
+<!-- Gradient Overlay for Text Readability -->
+<div class="absolute inset-0 poster-gradient flex flex-col justify-end px-margin-mobile pb-lg">
+<h1 class="font-display-lg text-display-lg text-primary-container uppercase tracking-wider shadow-sm drop-shadow-lg mb-xs">SESSİZ YANKILAR</h1>
+<div class="flex items-center gap-sm text-on-surface-variant font-label-md text-label-md">
+<span>2024</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>DRAM / GİZEM</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="border border-outline-variant/50 px-1.5 py-0.5 rounded text-[10px]">18+</span>
+</div>
+</div>
+</section>
+<!-- Interactive Actions -->
+<section class="px-margin-mobile py-md flex flex-col gap-sm">
+<button class="w-full h-12 bg-primary-container text-on-primary-container font-label-md text-label-md rounded flex items-center justify-center gap-xs active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span>İZLE</span>
+</button>
+<button class="w-full h-12 border border-primary-container text-primary-container font-label-md text-label-md rounded flex items-center justify-center gap-xs hover:bg-primary-container/10 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">add</span>
+<span>LİSTEYE EKLE</span>
+</button>
+</section>
+<!-- AI Recommendation Box -->
+<section class="px-margin-mobile py-sm">
+<div class="bg-surface-container border border-primary-container/30 rounded-lg p-md relative overflow-hidden">
+<!-- Subtle glow effect behind text -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/5 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
+<h2 class="font-label-md text-label-md text-primary-container flex items-center gap-xs mb-sm">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    NEDEN ÖNERİLDİ?
+                </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Daha önce izlediğiniz "Gece Vurgunu" ve "Karanlık Şehir" filmlerindeki yavaş tempolu gizem örgüsü ve neo-noir atmosferi sebebiyle %94 oranında eşleşiyor.
+                </p>
+</div>
+</section>
+<!-- Synopsis & AI Critic -->
+<section class="px-margin-mobile py-md border-t border-outline-variant/20 mt-md">
+<p class="font-body-lg text-body-lg text-on-surface mb-lg line-clamp-4">
+                Deneyimli dedektif Kemal, yıllar önce kapattığı bir dosyanın benzer izlerini taşıyan yeni bir cinayet mahalline çağrılır. Şehirde ardı ardına işlenen cinayetler, sadece geçmişi değil, Kemal'in kendi zihninin karanlık köşelerini de aydınlatmaya başlayacaktır.
+            </p>
+<div class="bg-surface-container-high rounded p-md border-l-2 border-outline-variant">
+<h3 class="font-label-md text-label-md text-on-surface mb-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">record_voice_over</span>
+                    AI ELEŞTİRMEN YORUMU
+                </h3>
+<p class="font-body-md text-body-md text-on-surface-variant italic">
+                    "Görsel bir şölen sunan sinematografisi ve başrol oyuncusunun sessiz ama güçlü performansı ile son yılların en etkileyici yerli gerilim yapımlarından biri. Yönetmen, izleyiciyi klostrofobik bir atmosfere hapsetmeyi başarıyor."
+                </p>
+</div>
+</section>
+<!-- Cast / Crew Bento -->
+<section class="px-margin-mobile py-md border-t border-outline-variant/20">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">KÜNYE</h3>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container rounded p-sm border border-white/5 flex flex-col justify-center">
+<span class="font-label-md text-label-md text-on-surface-variant mb-xs">YÖNETMEN</span>
+<span class="font-body-md text-body-md text-on-surface">Cemil Ağaoğlu</span>
+</div>
+<div class="bg-surface-container rounded p-sm border border-white/5 flex flex-col justify-center">
+<span class="font-label-md text-label-md text-on-surface-variant mb-xs">BAŞROL</span>
+<span class="font-body-md text-body-md text-on-surface">Haluk Bilginer</span>
+</div>
+</div>
+</section>
+<!-- Similar Titles -->
+<section class="py-md border-t border-outline-variant/20">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md px-margin-mobile">BENZER YAPIMLAR</h3>
+<div class="flex overflow-x-auto hide-scrollbar gap-sm px-margin-mobile snap-x">
+<!-- Poster 1 -->
+<div class="shrink-0 w-[120px] snap-start relative group">
+<div class="w-full aspect-[2/3] rounded bg-surface-container border border-white/10 overflow-hidden relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A moody cinematic movie poster featuring a foggy city bridge at night. Minimalist noir style, deep blues and shadows, high-end professional composition suitable for a premium streaming app." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDUvxNgom2GYJkLuK8yiUZBAegDTE-A34AWV3Ev0fZmcOk4wmZmaT7MesYa1kGSVQ6U6bVFH8hRvAT19rGbrf45JetJM6s6WbOASKB1ZOPGnK2VEgRNQc0B0-HdbwBHtSh-krin4fbzEdmZNnR3xxDqTsu8qhCJEom2gHHPO-jS6wTSBC1ZUbb8WuhMmLq9Rs4ik5vJYPW5He7KTBmBguLwz3T1IdLZ09jLxGBznDj1_0QWolxfyQ6P95yPdxCszQvJptHWoMLYfH0')"></div>
+</div>
+</div>
+<!-- Poster 2 -->
+<div class="shrink-0 w-[120px] snap-start relative group">
+<div class="w-full aspect-[2/3] rounded bg-surface-container border border-white/10 overflow-hidden relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A sophisticated movie poster showing a close-up of a person's eye reflecting a neon sign. High contrast, cinematic lighting, deep blacks, aesthetic suitable for a modern mystery film." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDywfXKPC5HBdfNdt_h7CkQSn-2lJ8SjjkE9uwr7N9HjtkzvmNu_sPuozdBoqQ6Kt49MPkpunVXaazu-0VmOiD4-GPKpAOZZvwz7n-HHYc-uYS7aK7_777omsKcIFv7IyqkP9Z2MYdJJuuDoKoXhJO5q2g6_dSqxxbq-NcYjh5Fu3eT-LzoXayo3osu0M_newjqVEncinkYESL-yniFFv522DHeX6JazBbZEXCVdxpxPVNoRCw0Vy4T5ajfdzGbb8luQk4L8oJ6NBE')"></div>
+</div>
+</div>
+<!-- Poster 3 -->
+<div class="shrink-0 w-[120px] snap-start relative group">
+<div class="w-full aspect-[2/3] rounded bg-surface-container border border-white/10 overflow-hidden relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Minimalist movie poster featuring an empty chair in a sparsely lit interrogation room. Harsh spotlighting, noir aesthetic, dramatic and prestigious visual style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVKiG-WNxIpsnjH4yAOedIDLqfaXJH-UGPkd-yPLyeD6LjPQegOFw_3QW-sigtTpTbbkSZPNrCo-VIWmm30sR4k8SbY2k8mk8BHu0jgoaY9tX_wVF4nW-FOJJcOK3HsN1kYoK_KHrgwU7bFNvkCm1l6QtGx4TtYvZdSggpvUS62uPJc-MhtlrTC9fvTZic6HNW4qrbK9fbRbHETODsHP4jWonFHE2mTQ201yt8qW_J5gPmpkDoWsdWxLVYcK7qJQ0urpPNavXubSs')"></div>
+</div>
+</div>
+<!-- Poster 4 -->
+<div class="shrink-0 w-[120px] snap-start relative group">
+<div class="w-full aspect-[2/3] rounded bg-surface-container border border-white/10 overflow-hidden relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A dark cinematic movie poster showing a silhouetted figure standing in a doorway. Deep shadows, subtle warm metallic lighting coming from inside the room. Premium thriller aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDduOc-U3Lbeonlmk3InVG1WYwUX0uw45d1t2JHhEGCa-PozRK6-FMj8Vy-o8YRMHr6bzY8jPR623XKJHIiVlogzNUw1i7CimJc3MHcvFliq28Cjwnt1qT67A34fepzy3UQfJYMYzV5GQwXHVIlxXgSB3c5HHNA1vZ59lSjKlnI25AVA8vFqSwzShQuQVOex23ezpd-TFpJ9rLjMEW85Yp8zHUFXCwTNmdUCZRNiJZIK9wzTzgz55ofyLFt6rTEwPptfE3l9khV13I')"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Shared Component) -->
+<!-- Suppressed by Semantic Shell Mandate: Destination Rule & Task-Focused. 
+         This is a detail screen (implies a 'back' navigation). 
+         However, the user prompt EXPLICITLY requests: "Bottom navigation bar present." 
+         Prompt override takes precedence for this specific request. -->
+<nav class="md:hidden glass-nav text-primary font-label-md text-label-md font-headline-lg-mobile text-headline-lg-mobile text-primary fixed bottom-0 w-full z-50 border-t border-outline-variant/50 flex justify-around items-center h-20 pb-4">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 transition-opacity w-16">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span>Keşfet</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 transition-opacity w-16">
+<span class="material-symbols-outlined mb-1">search</span>
+<span>Ara</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold hover:text-primary-container transition-colors active:opacity-80 transition-opacity w-16">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">format_list_bulleted</span>
+<span>Listelerim</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary-container transition-colors active:opacity-80 transition-opacity w-16">
+<span class="material-symbols-outlined mb-1">person</span>
+<span>Profil</span>
+</button>
+</nav>
+</body></html>

@@ -16,3 +16,15 @@ models/tfidf_matrix.pkl
 data/*.csv
 error.log
 
+# Flutter
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+
+# Model dosyaları
+models/kineflix-finetuned-model/
+models/minilm_embeddings.pkl
+
+# Node modules
+frontend/node_modules/
