@@ -7,7 +7,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from sentence_transformers import SentenceTransformer
+#from sentence_transformers import SentenceTransformer
+try:
+    from sentence_transformers import SentenceTransformer
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import cosine_similarity as sk_cosine
@@ -108,6 +113,11 @@ class MovieRecommender:
         return clean_text(" ".join(part for part in parts if part))
 
     def _build_embeddings(self, corpus: list[str]) -> None:
+        if not SENTENCE_TRANSFORMERS_AVAILABLE:
+            logger.warning("sentence_transformers kurulu değil, embedding atlanıyor")
+            self._embeddings = None
+            return
+
         import os
         if os.getenv("DISABLE_EMBEDDINGS", "false").lower() == "true":
             logger.info("Embedding devre dışı (production mode)")
