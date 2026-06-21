@@ -12,3 +12,6 @@ psycopg2-binary
 python-multipart
 email-validator
 passlib[bcrypt]
+aiosqlite
+watchfiles
+python-dotenv
