@@ -108,6 +108,12 @@ class MovieRecommender:
         return clean_text(" ".join(part for part in parts if part))
 
     def _build_embeddings(self, corpus: list[str]) -> None:
+        import os
+        if os.getenv("DISABLE_EMBEDDINGS", "false").lower() == "true":
+            logger.info("Embedding devre dışı (production mode)")
+            self._embeddings = None
+            return
+
         try:
             if MINILM_MODEL_PATH.exists():
                 self._minilm_model = SentenceTransformer(str(MINILM_MODEL_PATH))

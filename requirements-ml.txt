@@ -1,0 +1,8 @@
+-r requirements.txt
+sentence-transformers
+torch
+scikit-learn
+numpy
+scipy
+transformers
+huggingface-hub
