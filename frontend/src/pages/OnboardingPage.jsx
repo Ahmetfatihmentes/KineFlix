@@ -37,15 +37,18 @@ export default function OnboardingPage() {
     [selected],
   )
 
+  const [saveError, setSaveError] = useState(false)
+
   const handleSubmit = async () => {
     if (!canSubmit) return
     localStorage.setItem('kineflix_genres', JSON.stringify(selectedLabels))
     try {
       await savePreferences(selectedLabels)
+      navigate('/home')
     } catch {
-      // localStorage yeterli; kullanıcıyı bloklama
+      setSaveError(true)
+      setTimeout(() => navigate('/home'), 2000)
     }
-    navigate('/home')
   }
 
   return (
@@ -85,6 +88,11 @@ export default function OnboardingPage() {
             {count}/{total} seçildi
           </span>
         </div>
+        {saveError && (
+          <p className="text-error font-body text-sm text-center mb-4">
+            Tercihler sunucuya kaydedilemedi. Ana sayfaya yönlendiriliyorsunuz...
+          </p>
+        )}
         <button
           type="button"
           onClick={handleSubmit}

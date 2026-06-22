@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -5,6 +6,8 @@ import bcrypt
 from jose import JWTError, jwt
 
 from backend.core.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 gün
@@ -31,5 +34,6 @@ def verify_token(token: str) -> dict | None:
     try:
         payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except JWTError as exc:
+        logger.warning("Token doğrulama başarısız: %s", exc)
         return None

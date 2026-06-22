@@ -59,7 +59,7 @@ async def get_recommendations_for_movie(
             movie_by_id = {m.id: m for m in movies}
             return [movie_by_id[rid] for rid in recommended_ids if rid in movie_by_id]
 
-    fetch_limit = max(limit * 10, limit)
+    fetch_limit = limit * 10
     recommendations = movie_recommender.recommend(movie_id=movie_id, top_k=fetch_limit)
     recommended_ids = [item.movie_id for item in recommendations]
     if not recommended_ids:

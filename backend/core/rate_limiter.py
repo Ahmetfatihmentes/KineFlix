@@ -26,7 +26,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if not redis:
             return await call_next(request)
 
-        client_ip = request.client.host if request.client else "unknown"
+        forwarded_for = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+        client_ip = (
+            forwarded_for
+            or request.headers.get("X-Real-IP", "").strip()
+            or (request.client.host if request.client else "unknown")
+        )
         key = f"rate_limit:{client_ip}"
 
         try:

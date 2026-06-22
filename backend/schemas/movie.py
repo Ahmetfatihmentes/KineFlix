@@ -33,6 +33,14 @@ class WatchHistoryItemRead(MovieRead):
     watched_at: datetime
 
 
+class WatchlistCreate(BaseModel):
+    movie_id: int
+
+
+class WatchHistoryCreate(BaseModel):
+    movie_id: int
+
+
 class MovieDetailRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

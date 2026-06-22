@@ -1,17 +1,11 @@
 ﻿import json
 import logging
-import os
 import re
 from typing import Optional
 
 import httpx
 
 from backend.core.config import get_settings as _get_settings
-
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
-
-USE_GROQ = (ENVIRONMENT == "production") and bool(GROQ_API_KEY)
 
 logger = logging.getLogger(__name__)
 
@@ -365,7 +359,9 @@ Kapanış cümlesi yazma, öneri cümlesi yazma, soru sorma.
 Sadece bu 2 cümleyi yaz."""
 
     # LLM çağrısı: production'da Groq, lokalde Ollama
-    if USE_GROQ:
+    settings = _get_settings()
+    use_groq = settings.ENVIRONMENT == "production" and bool(settings.GROQ_API_KEY)
+    if use_groq:
         try:
             result = await _call_groq(prompt, max_tokens=num_predict * 2)
         except Exception as e:
@@ -484,7 +480,9 @@ Bu yorumları analiz et ve Türkçe olarak 3 kısa cümle yaz:
 Sadece 3 cümle yaz. Meta veri ekleme."""
 
     # LLM çağrısı: production'da Groq, lokalde Ollama
-    if USE_GROQ:
+    settings = _get_settings()
+    use_groq = settings.ENVIRONMENT == "production" and bool(settings.GROQ_API_KEY)
+    if use_groq:
         try:
             result = await _call_groq(prompt, max_tokens=200)
         except Exception as e:

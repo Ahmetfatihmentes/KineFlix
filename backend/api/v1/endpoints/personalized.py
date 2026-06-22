@@ -68,11 +68,11 @@ async def get_personalized_recommendation(
         candidates = movie_recommender.recommend(source_entry.movie_id, top_k=10)
         if candidates:
             recommended_id = candidates[0].movie_id
-            result2 = await db.execute(select(Movie).where(Movie.id == recommended_id))
-            recommended = result2.scalar_one_or_none()
-
-            result3 = await db.execute(select(Movie).where(Movie.id == source_entry.movie_id))
-            source = result3.scalar_one_or_none()
+            movie_ids = [recommended_id, source_entry.movie_id]
+            rows = await db.execute(select(Movie).where(Movie.id.in_(movie_ids)))
+            movies_by_id = {m.id: m for m in rows.scalars().all()}
+            recommended = movies_by_id.get(recommended_id)
+            source = movies_by_id.get(source_entry.movie_id)
 
             if recommended and source:
                 return {
