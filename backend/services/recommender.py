@@ -15,7 +15,6 @@ except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.metrics.pairwise import cosine_similarity as sk_cosine
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -314,7 +313,7 @@ class MovieRecommender:
         ).flatten()
 
         if self._embeddings is not None:
-            embedding_scores = sk_cosine(
+            embedding_scores = cosine_similarity(
                 self._embeddings[movie_index].reshape(1, -1),
                 self._embeddings,
             ).flatten()

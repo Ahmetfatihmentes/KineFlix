@@ -140,7 +140,7 @@ async def get_ai_review(
     summary = await generate_review_summary(
         movie_title=movie.title,
         reviews=review_texts,
-        positive_pct=movie.positive_pct,
+        positive_pct=min(movie.positive_pct, 100.0) if movie.positive_pct is not None else None,
     )
 
     return {

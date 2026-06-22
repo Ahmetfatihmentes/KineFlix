@@ -1,17 +1,25 @@
-import json
+﻿import json
 import logging
+import os
 import re
 from typing import Optional
 
 import httpx
 
+from backend.core.config import get_settings as _get_settings
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+
+USE_GROQ = (ENVIRONMENT == "production") and bool(GROQ_API_KEY)
 
 logger = logging.getLogger(__name__)
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_TAGS_URL = "http://localhost:11434/api/tags"
 OLLAMA_MODEL = "qwen2.5:3b"
 OLLAMA_HEADERS = {"Accept-Charset": "utf-8"}
+
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.1-8b-instant"
 
 GENRE_MAP = {
     "Action": "Aksiyon",
@@ -182,10 +190,97 @@ def _parse_ollama_response(resp: httpx.Response) -> dict:
     return json.loads(resp.content.decode("utf-8"))
 
 
+def _build_fallback_reason(
+    source_title: str,
+    source_genres: str,
+    source_content_type: str,
+    recommended_title: str,
+    recommended_genres: str,
+    recommended_content_type: str,
+    source_director: str = "",
+    recommended_director: str = "",
+    source_actors: str = "",
+    recommended_actors: str = "",
+) -> str:
+    src_genres = {g.strip() for g in translate_genres(source_genres).split(",")} if source_genres else set()
+    rec_genres = {g.strip() for g in translate_genres(recommended_genres).split(",")} if recommended_genres else set()
+    common_genres = src_genres & rec_genres
+
+    parts: list[str] = []
+    if common_genres:
+        parts.append(f"Her iki yapım da {', '.join(sorted(common_genres))} türünde.")
+    elif rec_genres:
+        parts.append(f"Benzer yapım tarzına sahip bir {next(iter(rec_genres))} filmi.")
+
+    if (source_director and recommended_director
+            and source_director.strip().lower() == recommended_director.strip().lower()):
+        parts.append(f"Her iki yapım da {source_director} tarafından yönetilmiştir.")
+
+    if source_actors and recommended_actors:
+        src_list = [a.strip() for a in source_actors.split(",")]
+        rec_list = [a.strip() for a in recommended_actors.split(",")]
+        common_actors = [a for a in src_list if a in rec_list]
+        if common_actors:
+            parts.append(f"{', '.join(common_actors[:2])} her iki yapımda da yer almaktadır.")
+
+    src_label = "filmini" if (source_content_type or "").lower() == "movie" else "dizisini"
+    rec_label = "filmini" if (recommended_content_type or "").lower() == "movie" else "dizisini"
+    closing = f"{source_title} {src_label} beğendiysen, {recommended_title} {rec_label} de beğenebilirsin."
+    body = " ".join(parts)
+    return f"{body} {closing}".strip() if body else closing
+
+
+def _build_fallback_review(movie_title: str, positive_pct: float | None) -> str | None:
+    if positive_pct is None:
+        return None
+    pct = int(positive_pct)
+    if positive_pct >= 80:
+        return (
+            f"Eleştirmenler {movie_title} filmini büyük çoğunlukla olumlu karşıladı; "
+            f"beğeni oranı %{pct} seviyesinde. "
+            f"Güçlü anlatımı ve etkileyici performanslarıyla öne çıkıyor. "
+            f"Türün hayranlarının kaçırmaması gereken bir yapım."
+        )
+    if positive_pct >= 55:
+        return (
+            f"Eleştirmenler {movie_title} için karışık görüşler bildirdi; "
+            f"beğeni oranı %{pct}. "
+            f"Filmin bazı yönleri takdir görürken bazı eleştirmenler eksiklikler de tespit etti. "
+            f"Türü sevenler için ilginç bir seçenek olabilir."
+        )
+    return (
+        f"Eleştirmenler {movie_title} konusunda bölünmüş görüşlere sahip; "
+        f"beğeni oranı %{pct} seviyesinde. "
+        f"Film bazı izleyicilere hitap edecek özgün unsurlar barındırıyor. "
+        f"İzlemeden önce konu özetini incelemeniz önerilir."
+    )
+
+
+async def _call_groq(prompt: str, max_tokens: int = 200) -> str:
+    api_key = _get_settings().GROQ_API_KEY
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(
+            GROQ_URL,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": GROQ_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": max_tokens,
+                "temperature": 0.3,
+            },
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return data["choices"][0]["message"]["content"].strip()
+
+
 async def _is_ollama_available() -> bool:
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            resp = await client.get(OLLAMA_TAGS_URL)
+            resp = await client.get(f"{_get_settings().OLLAMA_BASE_URL.rstrip('/')}/api/tags")
             return resp.status_code == 200
     except Exception:
         return False
@@ -213,13 +308,6 @@ async def generate_recommendation_reason(
     short_mode: bool = False,
 ) -> Optional[str]:
     """İki film arasındaki benzerlik açıklaması üretir."""
-
-    if not await _is_ollama_available():
-        logger.warning("Ollama kullanılamıyor, fallback metne düşülüyor.")
-        return None
-
-    source_overview = source_movie_overview_tr or source_movie_overview
-    recommended_overview = recommended_movie_overview_tr or recommended_movie_overview
 
     source_genres_tr = translate_genres(source_movie_genres)
     recommended_genres_tr = translate_genres(recommended_movie_genres)
@@ -258,14 +346,11 @@ async def generate_recommendation_reason(
     )
 
     if short_mode:
-        temperature = 0.1
         num_predict = 30
         prompt = f"""Türkçe yaz. İngilizce kelime kullanma.
 {source_movie_title} ve {recommended_movie_title} neden benzer?
 Maksimum 10 kelime yaz."""
-        stop_sequences: list[str] = []
     else:
-        temperature = 0.1
         num_predict = 120
         prompt = f"""Türkçe yaz. Kısa cümleler kur. İngilizce kelime kullanma.
 
@@ -278,56 +363,79 @@ Birinci cümlede ortak tür veya atmosferi anlat.
 İkinci cümlede izleyicinin neden sevebileceğini anlat.
 Kapanış cümlesi yazma, öneri cümlesi yazma, soru sorma.
 Sadece bu 2 cümleyi yaz."""
-        stop_sequences = []
 
-    try:
-        async with httpx.AsyncClient(timeout=60.0, headers=OLLAMA_HEADERS) as client:
-            resp = await client.post(
-                OLLAMA_URL,
-                json={
-                    "model": OLLAMA_MODEL,
-                    "prompt": prompt,
-                    "stream": False,
-                    "options": {
-                        "temperature": temperature,
-                        "num_predict": num_predict,
-                        "stop": stop_sequences,
+    # LLM çağrısı: production'da Groq, lokalde Ollama
+    if USE_GROQ:
+        try:
+            result = await _call_groq(prompt, max_tokens=num_predict * 2)
+        except Exception as e:
+            logger.error("Groq hatası [%s]: %s", type(e).__name__, e)
+            return _build_fallback_reason(
+                source_movie_title, source_movie_genres, source_content_type,
+                recommended_movie_title, recommended_movie_genres, recommended_content_type,
+                source_movie_director, recommended_movie_director,
+                source_movie_actors, recommended_movie_actors,
+            )
+    else:
+        if not await _is_ollama_available():
+            logger.warning("Ollama kullanılamıyor, kural tabanlı fallback kullanılıyor.")
+            return _build_fallback_reason(
+                source_movie_title, source_movie_genres, source_content_type,
+                recommended_movie_title, recommended_movie_genres, recommended_content_type,
+                source_movie_director, recommended_movie_director,
+                source_movie_actors, recommended_movie_actors,
+            )
+        try:
+            async with httpx.AsyncClient(
+                timeout=float(_get_settings().OLLAMA_TIMEOUT),
+                headers=OLLAMA_HEADERS,
+            ) as client:
+                resp = await client.post(
+                    f"{_get_settings().OLLAMA_BASE_URL.rstrip('/')}/api/generate",
+                    json={
+                        "model": OLLAMA_MODEL,
+                        "prompt": prompt,
+                        "stream": False,
+                        "options": {
+                            "temperature": 0.1,
+                            "num_predict": num_predict,
+                            "stop": [],
+                        },
                     },
-                },
-            )
-            data = _parse_ollama_response(resp)
-            result = data.get("response", "").strip()
-
-            if short_mode:
-                return apply_tr_fixes(result)
-
-            meta_patterns = [
-                r"Kelimesi kelimesine\s*:?\s*",
-                r"İki içeriğin ortak türünü veya atmosferini anlat\s*:?\s*",
-                r"İzleyicinin neden bu içeriği sevebileceğini anlat\s*:?\s*",
-                r"İzleyicinin neden sevebileceğini anlat\s*:?\s*",
-                r"anlat\s*:\s*",
-                r"dizisindeki\s*",
-                r"Cümle\s*\d+\s*:?\s*",
-                r"^\d+[\.\)]\s*",
-                r"^-\s*",
-            ]
-            for pattern in meta_patterns:
-                result = re.sub(
-                    pattern, "", result, flags=re.IGNORECASE | re.MULTILINE
                 )
-
-            result = apply_tr_fixes(result)
-            result = " ".join(result.split())
-            return _finalize_recommendation_reason(
-                result,
-                son_cumle,
-                source_movie_title,
-                recommended_movie_title,
+                data = _parse_ollama_response(resp)
+                result = data.get("response", "").strip()
+        except Exception as e:
+            logger.error("Ollama hatası [%s]: %s", type(e).__name__, e)
+            return _build_fallback_reason(
+                source_movie_title, source_movie_genres, source_content_type,
+                recommended_movie_title, recommended_movie_genres, recommended_content_type,
+                source_movie_director, recommended_movie_director,
+                source_movie_actors, recommended_movie_actors,
             )
-    except Exception as e:
-        logger.error("Ollama hatası: %s", e)
-        return None
+
+    # Ortak post-processing
+    if short_mode:
+        return apply_tr_fixes(result)
+
+    meta_patterns = [
+        r"Birinci\s+Cümle[n]?\s*[:;]?\s*",
+        r"İkinci\s+Cümle[n]?\s*[:;]?\s*",
+        r"Üçüncü\s+Cümle[n]?\s*[:;]?\s*",
+        r"Cümle\s*\d+\s*[:;]?\s*",
+        r"^\d+[\.\)]\s*",
+    ]
+    for pattern in meta_patterns:
+        result = re.sub(pattern, "", result, flags=re.IGNORECASE | re.MULTILINE)
+
+    result = apply_tr_fixes(result)
+    result = " ".join(result.split()).strip()
+    return _finalize_recommendation_reason(
+        result,
+        son_cumle,
+        source_movie_title,
+        recommended_movie_title,
+    )
 
 
 async def generate_review_summary(
@@ -338,11 +446,11 @@ async def generate_review_summary(
     """Film yorumlarından Türkçe genel değerlendirme üretir."""
 
     if not reviews:
-        return None
+        return _build_fallback_review(movie_title, positive_pct)
 
     sample_reviews = [r[:200] for r in reviews[:8] if r and len(r) > 20]
     if not sample_reviews:
-        return None
+        return _build_fallback_review(movie_title, positive_pct)
 
     reviews_text = "\n".join([f"- {r}" for r in sample_reviews])
     pct_text = (
@@ -366,28 +474,51 @@ Bu yorumları analiz et ve Türkçe olarak 3 kısa cümle yaz:
 
 Sadece 3 cümle yaz. Meta veri ekleme."""
 
-    try:
-        async with httpx.AsyncClient(timeout=60.0, headers=OLLAMA_HEADERS) as client:
-            resp = await client.post(
-                OLLAMA_URL,
-                json={
-                    "model": OLLAMA_MODEL,
-                    "prompt": prompt,
-                    "stream": False,
-                    "options": {
-                        "temperature": 0.2,
-                        "num_predict": 150,
+    # LLM çağrısı: production'da Groq, lokalde Ollama
+    if USE_GROQ:
+        try:
+            result = await _call_groq(prompt, max_tokens=200)
+        except Exception as e:
+            logger.error("Groq yorum özeti hatası [%s]: %s", type(e).__name__, e)
+            return _build_fallback_review(movie_title, positive_pct)
+    else:
+        if not await _is_ollama_available():
+            logger.warning("Ollama kullanılamıyor, istatistik tabanlı yorum üretiliyor.")
+            return _build_fallback_review(movie_title, positive_pct)
+        try:
+            async with httpx.AsyncClient(
+                timeout=float(_get_settings().OLLAMA_TIMEOUT),
+                headers=OLLAMA_HEADERS,
+            ) as client:
+                resp = await client.post(
+                    f"{_get_settings().OLLAMA_BASE_URL.rstrip('/')}/api/generate",
+                    json={
+                        "model": OLLAMA_MODEL,
+                        "prompt": prompt,
+                        "stream": False,
+                        "options": {
+                            "temperature": 0.2,
+                            "num_predict": 150,
+                        },
                     },
-                },
-            )
-            data = _parse_ollama_response(resp)
-            result = data.get("response", "").strip()
+                )
+                data = _parse_ollama_response(resp)
+                result = data.get("response", "").strip()
+        except Exception as e:
+            logger.error("Ollama yorum özeti hatası [%s]: %s", type(e).__name__, e)
+            return _build_fallback_review(movie_title, positive_pct)
 
-            result = re.sub(r"^\d+[\.\)]\s*", "", result, flags=re.MULTILINE)
-            result = " ".join(result.split())
-            result = apply_tr_fixes(result)
+    # Ortak post-processing
+    meta_patterns = [
+        r"Birinci\s+Cümle[n]?\s*[:;]?\s*",
+        r"İkinci\s+Cümle[n]?\s*[:;]?\s*",
+        r"Üçüncü\s+Cümle[n]?\s*[:;]?\s*",
+        r"Cümle\s*\d+\s*[:;]?\s*",
+        r"^\d+[\.\)]\s*",
+    ]
+    for pattern in meta_patterns:
+        result = re.sub(pattern, "", result, flags=re.IGNORECASE | re.MULTILINE)
 
-            return result if result else None
-    except Exception as e:
-        logger.error("Ollama yorum özeti hatası: %s", e)
-        return None
+    result = apply_tr_fixes(result)
+    result = " ".join(result.split()).strip()
+    return result if result else None

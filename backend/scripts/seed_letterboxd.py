@@ -13,8 +13,6 @@ from backend.core.database import AsyncSessionLocal
 from backend.models.movie import Movie
 from backend.models.movie_vector import MovieVector
 from backend.models.review import Review
-from backend.models.watch_history import WatchHistory
-from backend.models.watchlist import Watchlist
 from backend.services.recommender import TFIDF_CACHE_PATH
 
 
@@ -146,9 +144,11 @@ async def seed_letterboxd_dataset(
         TFIDF_CACHE_PATH.unlink()
         logger.info("Removed stale TF-IDF cache: %s", TFIDF_CACHE_PATH)
 
+    logger.warning(
+        "UYARI: Bu script sadece film verilerini günceller, kullanıcı verileri korunur."
+    )
+
     async with AsyncSessionLocal() as db:
-        await db.execute(delete(WatchHistory))
-        await db.execute(delete(Watchlist))
         await db.execute(delete(MovieVector))
         await db.execute(delete(Review))
         await db.execute(delete(Movie))

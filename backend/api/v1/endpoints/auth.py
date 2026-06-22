@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import get_db
 from backend.core.deps import get_current_user_id
-from backend.core.security import create_access_token
+from backend.core.redis_client import blacklist_token
+from backend.core.security import create_access_token, verify_token
 from backend.models.user import User
 from backend.schemas.token import TokenResponse
 from backend.schemas.user import UserCreate, UserLogin, UserRead
@@ -40,6 +43,23 @@ async def login(user_in: UserLogin, db: AsyncSession = Depends(get_db)) -> Token
         email=user.email,
         role=user.role,
     )
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(
+    authorization: str | None = Header(default=None),
+    user_id: int = Depends(get_current_user_id),
+) -> None:
+    if not authorization:
+        return
+    token = authorization.removeprefix("Bearer ").strip()
+    payload = verify_token(token)
+    if payload:
+        jti = payload.get("jti")
+        exp = payload.get("exp")
+        if jti and exp:
+            remaining = int(exp - datetime.now(timezone.utc).timestamp())
+            await blacklist_token(jti, remaining)
 
 
 @router.get("/me", response_model=UserRead)

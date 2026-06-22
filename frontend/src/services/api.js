@@ -20,8 +20,8 @@ export const loginUser = (email, password) =>
 
 export const getMe = () => api.get('/auth/me')
 
-export const registerUser = (email, password) =>
-  api.post('/auth/register', { email, password })
+export const registerUser = (email, password, fullName) =>
+  api.post('/auth/register', { email, password, full_name: fullName || null })
 
 export const searchMovies = (query, contentType = '') => {
   const params = { query }

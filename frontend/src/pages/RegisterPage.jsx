@@ -7,17 +7,29 @@ const CINEMA_BG =
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (!fullName.trim()) {
+      setError('Ad Soyad zorunludur.')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Şifreler eşleşmiyor.')
+      return
+    }
+
     setLoading(true)
     try {
-      const response = await registerUser(email, password)
+      const response = await registerUser(email, password, fullName.trim())
       localStorage.setItem('kineflix_user', response.data.email)
       const loginRes = await loginUser(email, password)
       localStorage.setItem('kineflix_token', loginRes.data.access_token)
@@ -57,6 +69,27 @@ export default function RegisterPage() {
                 {error}
               </p>
             )}
+
+            <div className="space-y-1">
+              <label className="font-label text-label-md text-on-surface-variant block uppercase" htmlFor="fullName">
+                Ad Soyad
+              </label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-secondary-container">
+                  person
+                </span>
+                <input
+                  id="fullName"
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Adınız Soyadınız"
+                  className="w-full bg-transparent border-0 border-b border-secondary-container text-on-surface focus:ring-0 focus:border-primary-container transition-colors py-3 pl-8 font-body text-body-md placeholder-on-surface-variant/50 outline-none"
+                />
+              </div>
+            </div>
+
             <div className="space-y-1">
               <label className="font-label text-label-md text-on-surface-variant block uppercase" htmlFor="email">
                 E-posta Adresi
@@ -76,6 +109,7 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
+
             <div className="space-y-1">
               <label className="font-label text-label-md text-on-surface-variant block uppercase" htmlFor="password">
                 Şifre
@@ -96,6 +130,28 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
+
+            <div className="space-y-1">
+              <label className="font-label text-label-md text-on-surface-variant block uppercase" htmlFor="confirmPassword">
+                Şifre Tekrar
+              </label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-secondary-container">
+                  lock_reset
+                </span>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-transparent border-0 border-b border-secondary-container text-on-surface focus:ring-0 focus:border-primary-container transition-colors py-3 pl-8 font-body text-body-md placeholder-on-surface-variant/50 outline-none"
+                />
+              </div>
+            </div>
+
             <div className="pt-4">
               <button
                 type="submit"

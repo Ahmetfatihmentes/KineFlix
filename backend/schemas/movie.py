@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Self
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
 class MovieRead(BaseModel):
@@ -18,6 +18,13 @@ class MovieRead(BaseModel):
     runtime: int | None = None
     letterboxd_rating: float | None = None
     positive_pct: float | None = None
+
+    @field_validator("positive_pct", mode="before")
+    @classmethod
+    def clamp_positive_pct(cls, v):
+        if v is None:
+            return v
+        return min(float(v), 100.0)
 
 
 class WatchlistItemRead(MovieRead):
@@ -50,6 +57,13 @@ class MovieDetailRead(BaseModel):
     total_reviews: int | None = None
     positive_pct: float | None = None
     content_type: str | None = None
+
+    @field_validator("positive_pct", mode="before")
+    @classmethod
+    def clamp_positive_pct(cls, v):
+        if v is None:
+            return v
+        return min(float(v), 100.0)
 
     @model_validator(mode="after")
     def normalize_tv_rating(self) -> Self:

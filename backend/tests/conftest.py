@@ -16,6 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from backend.core.database import Base, get_db
 from backend.main import create_app
 from backend.models.movie import Movie
+from backend.models.review import Review
 from backend.services.recommender import movie_recommender
 
 
@@ -49,6 +50,9 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
                     overview="Space travel wormhole future science family survival",
                     genres="Sci-Fi Drama Adventure",
                     release_year=2014,
+                    letterboxd_rating=4.5,
+                    content_type="Movie",
+                    trailer_key="abc123",
                 ),
                 Movie(
                     id=2,
@@ -56,6 +60,8 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
                     overview="Astronaut survives alone on Mars with science and humor",
                     genres="Sci-Fi Adventure",
                     release_year=2015,
+                    letterboxd_rating=4.2,
+                    content_type="Movie",
                 ),
                 Movie(
                     id=3,
@@ -63,6 +69,8 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
                     overview="Dream layers espionage mind-bending heist thriller",
                     genres="Sci-Fi Thriller",
                     release_year=2010,
+                    letterboxd_rating=4.4,
+                    content_type="Movie",
                 ),
                 Movie(
                     id=4,
@@ -70,6 +78,26 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
                     overview="Two astronauts struggle to survive in space after disaster",
                     genres="Sci-Fi Drama",
                     release_year=2013,
+                    letterboxd_rating=4.1,
+                    content_type="Movie",
+                ),
+            ]
+        )
+        session.add_all(
+            [
+                Review(
+                    id=1,
+                    movie_id=1,
+                    review_text="A stunning visual masterpiece with emotional depth.",
+                    sentiment="positive",
+                    critic_name="Critic A",
+                ),
+                Review(
+                    id=2,
+                    movie_id=1,
+                    review_text="Nolan delivers an ambitious sci-fi epic.",
+                    sentiment="positive",
+                    critic_name="Critic B",
                 ),
             ]
         )
@@ -110,7 +138,23 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[TestClient, None]:
             "backend.main.movie_recommender.start_background_initialization",
             new_callable=AsyncMock,
         ):
-            with TestClient(app) as test_client:
-                yield test_client
+            with patch("backend.main.init_redis", new_callable=AsyncMock):
+                with patch("backend.main.close_redis", new_callable=AsyncMock):
+                    with TestClient(app) as test_client:
+                        yield test_client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def auth_headers(client) -> dict[str, str]:
+    client.post(
+        "/auth/register",
+        json={"email": "testuser@example.com", "password": "supersecret"},
+    )
+    login = client.post(
+        "/auth/login",
+        json={"email": "testuser@example.com", "password": "supersecret"},
+    )
+    token = login.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}

@@ -7,15 +7,18 @@ from backend.api.error_handlers import register_exception_handlers
 from backend.api.v1.api import api_router
 from backend.core.bootstrap import initialize_database
 from backend.core import logging_config
+from backend.core.redis_client import close_redis, init_redis
 from backend.services.recommender import movie_recommender
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await initialize_database()
+    await init_redis()
     await movie_recommender.start_background_initialization()
     yield
     movie_recommender.reset()
+    await close_redis()
 
 
 def create_app() -> FastAPI:

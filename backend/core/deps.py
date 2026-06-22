@@ -1,5 +1,6 @@
 from fastapi import Header, HTTPException, status
 
+from backend.core.redis_client import is_token_blacklisted
 from backend.core.security import verify_token
 
 
@@ -15,6 +16,13 @@ async def get_current_user_id(authorization: str | None = Header(default=None)) 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Geçersiz veya süresi dolmuş token.",
+        )
+
+    jti = payload.get("jti")
+    if jti and await is_token_blacklisted(jti):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token iptal edilmiş. Lütfen tekrar giriş yapın.",
         )
 
     try:

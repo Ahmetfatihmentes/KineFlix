@@ -35,3 +35,41 @@ async def test_register_user_rejects_duplicate_email(db_session) -> None:
         assert "zaten kayitli" in exc.message.lower() or "zaten kay\u0131tl\u0131" in exc.message.lower()
     else:
         raise AssertionError("ValidationException bekleniyordu.")
+
+
+async def test_login_user_returns_user(db_session) -> None:
+    from backend.schemas.user import UserLogin
+    from backend.services.auth_service import login_user
+
+    await register_user(
+        db_session,
+        UserCreate(email="login@test.com", password="supersecret"),
+    )
+
+    user = await login_user(
+        db_session,
+        UserLogin(email="login@test.com", password="supersecret"),
+    )
+
+    assert user.email == "login@test.com"
+
+
+async def test_login_user_rejects_wrong_password(db_session) -> None:
+    from backend.schemas.user import UserLogin
+    from backend.services.auth_service import login_user
+
+    await register_user(
+        db_session,
+        UserCreate(email="wrong@test.com", password="supersecret"),
+    )
+
+    try:
+        await login_user(
+            db_session,
+            UserLogin(email="wrong@test.com", password="badpassword"),
+        )
+    except ValidationException as exc:
+        assert "hatal" in exc.message.lower()
+    else:
+        raise AssertionError("ValidationException bekleniyordu.")
+

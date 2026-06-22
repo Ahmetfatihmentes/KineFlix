@@ -16,3 +16,4 @@ aiosqlite
 watchfiles
 python-dotenv
 scikit-learn
+redis[hiredis]
