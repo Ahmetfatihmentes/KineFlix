@@ -4,6 +4,7 @@ import '../screens/history_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/movie_detail_screen.dart';
+import '../screens/onboarding_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/search_screen.dart';
@@ -20,9 +21,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/movies/:id',
       builder: (c, s) => MovieDetailScreen(
-        movieId: int.parse(s.pathParameters['id']!),
+        movieId: int.tryParse(s.pathParameters['id'] ?? '') ?? 0,
       ),
     ),
+    GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
     GoRoute(path: '/search', builder: (c, s) => const SearchScreen()),
     GoRoute(path: '/watchlist', builder: (c, s) => const WatchlistScreen()),
     GoRoute(path: '/history', builder: (c, s) => const HistoryScreen()),

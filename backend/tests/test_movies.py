@@ -237,14 +237,14 @@ def test_movie_detail_read_tv_show_rating_unchanged() -> None:
     assert detail.letterboxd_rating == 8.6
 
 
-def test_movie_detail_read_keeps_movie_rating_on_five_scale() -> None:
+def test_movie_detail_read_movie_rating_unchanged() -> None:
     detail = MovieDetailRead(
         id=2,
         title="Test Movie",
         content_type="Movie",
-        letterboxd_rating=4.5,
+        letterboxd_rating=7.4,
     )
-    assert detail.letterboxd_rating == 4.5
+    assert detail.letterboxd_rating == 7.4
 
 
 @pytest.mark.asyncio

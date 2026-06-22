@@ -58,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
 
     if (loginResult['success'] == true) {
-      context.go('/home');
+      context.go('/onboarding');
       return;
     }
 

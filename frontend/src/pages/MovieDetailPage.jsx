@@ -28,6 +28,7 @@ export default function MovieDetailPage() {
   const [similar, setSimilar] = useState([])
   const [loading, setLoading] = useState(true)
   const [recLoading, setRecLoading] = useState(false)
+  const [recError, setRecError] = useState(false)
   const [error, setError] = useState('')
   const [trailerKey, setTrailerKey] = useState(null)
   const [showTrailer, setShowTrailer] = useState(false)
@@ -58,6 +59,7 @@ export default function MovieDetailPage() {
         setMovie(movieRes.data)
         setReviews(reviewsRes.data)
         setRecLoading(true)
+        setRecError(false)
         const loadRecommendations = async (attempt = 0) => {
           try {
             const recRes = await getRecommendations(id, 8)
@@ -68,17 +70,19 @@ export default function MovieDetailPage() {
               setRecLoading(false)
               return
             }
-            if (recData?.status === 'loading' && attempt < 40) {
-              await new Promise((resolve) => setTimeout(resolve, 3000))
+            if (recData?.status === 'loading' && attempt < 10) {
+              await new Promise((resolve) => setTimeout(resolve, 5000))
               if (!cancelled) loadRecommendations(attempt + 1)
               return
             }
             setSimilar([])
             setRecLoading(false)
+            setRecError(true)
           } catch {
             if (!cancelled) {
               setSimilar([])
               setRecLoading(false)
+              setRecError(true)
             }
           }
         }
@@ -446,7 +450,17 @@ export default function MovieDetailPage() {
             <h2 className="font-headline text-headline-lg text-on-surface uppercase">Benzer Filmler</h2>
           </div>
           {recLoading ? (
-            <p className="font-body text-on-surface-variant">Öneriler hazırlanıyor...</p>
+            <div className="flex gap-6 overflow-x-auto pb-8 hide-scrollbar">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="min-w-[160px] md:min-w-[200px] flex-shrink-0 animate-pulse">
+                  <div className="w-full aspect-[2/3] rounded bg-surface-container-highest mb-2" />
+                  <div className="h-3 rounded bg-surface-container-highest w-3/4 mb-1" />
+                  <div className="h-3 rounded bg-surface-container-highest w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : recError ? (
+            <p className="font-body text-on-surface-variant">Öneriler şu an yüklenemiyor.</p>
           ) : similar.length === 0 ? (
             <p className="font-body text-on-surface-variant">Benzer film bulunamadı.</p>
           ) : (

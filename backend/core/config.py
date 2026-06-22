@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     OLLAMA_TIMEOUT: int = 180
     REDIS_URL: str | None = None
     GROQ_API_KEY: str | None = None
+    TFIDF_WEIGHT: float = 0.4
+    EMBEDDING_WEIGHT: float = 0.6
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 

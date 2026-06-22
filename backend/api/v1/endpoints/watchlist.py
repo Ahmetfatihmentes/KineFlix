@@ -100,6 +100,6 @@ async def remove_from_watchlist(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Listede bulunamadı",
         )
-    db.delete(entry)
+    await db.delete(entry)
     await db.commit()
     return {"message": "Listeden çıkarıldı"}

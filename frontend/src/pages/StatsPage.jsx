@@ -264,7 +264,7 @@ export default function StatsPage() {
               value: (
                 <>
                   {avgRating}
-                  <span className="text-2xl text-on-surface-variant font-body">/5</span>
+                  <span className="text-2xl text-on-surface-variant font-body">/ 10</span>
                 </>
               ),
             },

@@ -20,6 +20,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core.config import get_settings
 from backend.core.database import AsyncSessionLocal
 from backend.models.movie import Movie
 
@@ -352,7 +353,8 @@ class MovieRecommender:
                 self._embeddings[movie_index].reshape(1, -1),
                 self._embeddings,
             ).flatten()
-            final_scores = 0.4 * tfidf_scores + 0.6 * embedding_scores
+            _s = get_settings()
+            final_scores = _s.TFIDF_WEIGHT * tfidf_scores + _s.EMBEDDING_WEIGHT * embedding_scores
         else:
             final_scores = tfidf_scores
 
