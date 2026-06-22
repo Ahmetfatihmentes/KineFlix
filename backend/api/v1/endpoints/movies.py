@@ -1,9 +1,12 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.config import get_settings
 from backend.core.database import get_db
+from backend.core.redis_client import get_redis
 from backend.models.movie import Movie
 from backend.models.review import Review
 from backend.schemas.movie import MovieDetailRead, MovieRead, ReviewRead
@@ -21,10 +24,21 @@ async def search_movies(
     content_type: str | None = Query(None, description="Movie veya TV Show"),
     db: AsyncSession = Depends(get_db),
 ) -> list[MovieRead]:
-    """
-    Search movies by title or overview.
-    """
-    return await movie_service.search_movies(db=db, query=q, content_type=content_type)
+    redis = await get_redis()
+    cache_key = f"search:{q.lower()}:{content_type}"
+
+    if redis and q.strip():
+        cached = await redis.get(cache_key)
+        if cached:
+            return [MovieRead.model_validate(item) for item in json.loads(cached)]
+
+    results = await movie_service.search_movies(db=db, query=q, content_type=content_type)
+    validated = [MovieRead.model_validate(m) for m in results]
+
+    if redis and q.strip() and validated:
+        await redis.setex(cache_key, 1800, json.dumps([m.model_dump() for m in validated], default=str))
+
+    return validated
 
 
 @router.get("/{movie_id}", response_model=MovieDetailRead)
@@ -32,16 +46,26 @@ async def get_movie(
     movie_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> MovieDetailRead:
-    """
-    Get movie details by id.
-    """
+    redis = await get_redis()
+    cache_key = f"movie:{movie_id}"
+
+    if redis:
+        cached = await redis.get(cache_key)
+        if cached:
+            return MovieDetailRead.model_validate(json.loads(cached))
+
     movie = await movie_service.get_movie_by_id(db=db, movie_id=movie_id)
     if movie is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Movie not found",
         )
-    return movie_service.to_movie_detail_read(movie)
+    result = movie_service.to_movie_detail_read(movie)
+
+    if redis:
+        await redis.setex(cache_key, 86400, json.dumps(result.model_dump(), default=str))
+
+    return result
 
 
 @router.get("/{movie_id}/reviews", response_model=list[ReviewRead])
@@ -72,6 +96,9 @@ async def get_recommendation_reason(
     db: AsyncSession = Depends(get_db),
 ):
     """İki film arasındaki benzerlik açıklaması döndürür."""
+    redis = await get_redis()
+    cache_key = f"rec_reason:{movie_id}:{recommended_id}:{short}"
+
     result1 = await db.execute(select(Movie).where(Movie.id == movie_id))
     source = result1.scalar_one_or_none()
 
@@ -80,6 +107,15 @@ async def get_recommendation_reason(
 
     if not source or not recommended:
         raise HTTPException(status_code=404, detail="Film bulunamadı")
+
+    if redis:
+        cached = await redis.get(cache_key)
+        if cached:
+            return {
+                "source_movie": source.title,
+                "recommended_movie": recommended.title,
+                "reason": cached,
+            }
 
     reason = await generate_recommendation_reason(
         source_movie_title=source.title,
@@ -103,10 +139,14 @@ async def get_recommendation_reason(
         short_mode=short,
     )
 
+    final_reason = reason or "Bu filmler benzer türde ve temaya sahip yapımlar."
+    if redis and reason:
+        await redis.setex(cache_key, 86400, final_reason)
+
     return {
         "source_movie": source.title,
         "recommended_movie": recommended.title,
-        "reason": reason or "Bu filmler benzer türde ve temaya sahip yapımlar.",
+        "reason": final_reason,
     }
 
 
@@ -116,6 +156,14 @@ async def get_ai_review(
     db: AsyncSession = Depends(get_db),
 ):
     """Film için AI tarafından üretilmiş Türkçe genel değerlendirme döndürür."""
+    redis = await get_redis()
+    cache_key = f"ai_review:{movie_id}"
+
+    if redis:
+        cached = await redis.get(cache_key)
+        if cached:
+            return json.loads(cached)
+
     result = await db.execute(select(Movie).where(Movie.id == movie_id))
     movie = result.scalar_one_or_none()
     if not movie:
@@ -143,13 +191,18 @@ async def get_ai_review(
         positive_pct=min(movie.positive_pct, 100.0) if movie.positive_pct is not None else None,
     )
 
-    return {
+    response = {
         "movie_id": movie_id,
         "movie_title": movie.title,
         "ai_review": summary,
         "review_count": len(review_texts),
         "has_reviews": True,
     }
+
+    if redis and summary:
+        await redis.setex(cache_key, 86400, json.dumps(response))
+
+    return response
 
 
 @router.get("/{movie_id}/trailer")

@@ -24,6 +24,10 @@ async def init_redis() -> None:
         _redis = None
 
 
+async def get_redis() -> aioredis.Redis | None:
+    return _redis
+
+
 async def close_redis() -> None:
     global _redis
     if _redis:

@@ -1,6 +1,9 @@
+import json
+
 from sqlalchemy import case, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core.redis_client import get_redis
 from backend.models.movie import Movie
 from backend.models.review import Review
 from backend.schemas.movie import MovieDetailRead
@@ -39,6 +42,23 @@ async def get_recommendations_for_movie(
         return None
 
     source_content_type = movie.content_type or "Movie"
+
+    redis = await get_redis()
+    cache_key = f"recommendations:{movie_id}:{limit}"
+
+    if redis:
+        cached = await redis.get(cache_key)
+        if cached:
+            recommended_ids = json.loads(cached)
+            statement = select(Movie).where(
+                Movie.id.in_(recommended_ids),
+                Movie.content_type == source_content_type,
+            )
+            result = await db.execute(statement)
+            movies = list(result.scalars().all())
+            movie_by_id = {m.id: m for m in movies}
+            return [movie_by_id[rid] for rid in recommended_ids if rid in movie_by_id]
+
     fetch_limit = max(limit * 10, limit)
     recommendations = movie_recommender.recommend(movie_id=movie_id, top_k=fetch_limit)
     recommended_ids = [item.movie_id for item in recommendations]
@@ -52,11 +72,16 @@ async def get_recommendations_for_movie(
     result = await db.execute(statement)
     movies = list(result.scalars().all())
     movie_by_id = {movie_item.id: movie_item for movie_item in movies}
-    return [
+    ordered = [
         movie_by_id[recommended_id]
         for recommended_id in recommended_ids
         if recommended_id in movie_by_id
     ][:limit]
+
+    if redis and ordered:
+        await redis.setex(cache_key, 3600, json.dumps([m.id for m in ordered]))
+
+    return ordered
 
 
 async def get_reviews_for_movie(

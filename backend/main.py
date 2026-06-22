@@ -7,6 +7,7 @@ from backend.api.error_handlers import register_exception_handlers
 from backend.api.v1.api import api_router
 from backend.core.bootstrap import initialize_database
 from backend.core import logging_config
+from backend.core.rate_limiter import RateLimitMiddleware
 from backend.core.redis_client import close_redis, init_redis
 from backend.services.recommender import movie_recommender
 
@@ -41,6 +42,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    app.add_middleware(RateLimitMiddleware)
     register_exception_handlers(app)
     app.include_router(api_router)
 
