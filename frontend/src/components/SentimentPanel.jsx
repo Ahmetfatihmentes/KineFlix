@@ -1,6 +1,19 @@
+function HalfStar() {
+  return (
+    <span style={{ position: 'relative', display: 'inline-block', color: 'transparent', WebkitTextStroke: '1px #e6c364', fontSize: 'inherit' }}>
+      ★
+      <span style={{ position: 'absolute', left: 0, top: 0, width: '50%', overflow: 'hidden', color: '#e6c364', WebkitTextStroke: '0px' }}>★</span>
+    </span>
+  )
+}
+
 export default function SentimentPanel({ positivePct, rating }) {
   const pct = positivePct != null ? Math.round(positivePct) : null
-  const stars = rating != null ? Math.min(5, Math.round(rating / 2)) : null
+
+  const starValue = rating != null ? (rating / 10) * 5 : null
+  const fullStars = starValue != null ? Math.floor(starValue) : null
+  const hasHalf = starValue != null ? (starValue - fullStars) >= 0.5 : false
+  const emptyStars = starValue != null ? 5 - fullStars - (hasHalf ? 1 : 0) : 0
 
   return (
     <div className="bg-surface-container/50 backdrop-blur-md border border-primary-container rounded p-6 lg:p-8 flex flex-col justify-center relative overflow-hidden group">
@@ -13,18 +26,15 @@ export default function SentimentPanel({ positivePct, rating }) {
           Seyirci Kararı (AI Analizi)
         </h3>
       </div>
-      {stars != null && (
+      {starValue != null && (
         <div className="flex items-center mb-4 relative z-10">
-          <div className="flex gap-1 text-primary-container">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span
-                key={i}
-                className={`material-symbols-outlined ${
-                  i < stars ? 'material-symbols-filled' : ''
-                }`}
-              >
-                {i < stars ? 'star' : 'star'}
-              </span>
+          <div className="flex gap-1" style={{ fontSize: '1.25rem', lineHeight: 1 }}>
+            {Array.from({ length: fullStars }).map((_, i) => (
+              <span key={`full-${i}`} style={{ color: '#e6c364' }}>★</span>
+            ))}
+            {hasHalf && <HalfStar />}
+            {Array.from({ length: emptyStars }).map((_, i) => (
+              <span key={`empty-${i}`} style={{ color: 'transparent', WebkitTextStroke: '1px #e6c364' }}>★</span>
             ))}
           </div>
           {rating != null && (
