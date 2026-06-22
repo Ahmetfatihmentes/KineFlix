@@ -1,6 +1,6 @@
 export default function SentimentPanel({ positivePct, rating }) {
   const pct = positivePct != null ? Math.round(positivePct) : null
-  const stars = rating != null ? Math.min(5, Math.round(rating)) : null
+  const stars = rating != null ? Math.min(5, Math.round(rating / 2)) : null
 
   return (
     <div className="bg-surface-container/50 backdrop-blur-md border border-primary-container rounded p-6 lg:p-8 flex flex-col justify-center relative overflow-hidden group">
@@ -30,7 +30,7 @@ export default function SentimentPanel({ positivePct, rating }) {
           {rating != null && (
             <span className="ml-3 font-body text-title-md text-on-surface font-semibold">
               {rating.toFixed(1)}{' '}
-              <span className="text-on-surface-variant text-sm font-normal">/ 5</span>
+              <span className="text-on-surface-variant text-sm font-normal">/ 10</span>
             </span>
           )}
         </div>

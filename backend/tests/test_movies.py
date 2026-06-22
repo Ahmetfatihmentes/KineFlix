@@ -227,14 +227,14 @@ def test_trailer_fetches_and_caches_key(mock_settings, mock_fetch, client) -> No
     assert body["cached"] is False
 
 
-def test_movie_detail_read_converts_tv_show_rating_to_five_scale() -> None:
+def test_movie_detail_read_tv_show_rating_unchanged() -> None:
     detail = MovieDetailRead(
         id=1,
         title="Test Show",
         content_type="TV Show",
         letterboxd_rating=8.6,
     )
-    assert detail.letterboxd_rating == 4.3
+    assert detail.letterboxd_rating == 8.6
 
 
 def test_movie_detail_read_keeps_movie_rating_on_five_scale() -> None:

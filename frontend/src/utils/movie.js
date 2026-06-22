@@ -13,7 +13,7 @@ export function posterSrc(url) {
 
 export function formatScore(movie) {
   if (movie?.positive_pct != null) return Math.round(movie.positive_pct)
-  if (movie?.letterboxd_rating != null) return Math.round(movie.letterboxd_rating * 20)
+  if (movie?.letterboxd_rating != null) return Math.round(movie.letterboxd_rating * 10)
   if (movie?.audience_score != null) return Math.round(movie.audience_score)
   return null
 }
@@ -55,15 +55,15 @@ export function formatShortWatchedDate(isoDate) {
 
 export function movieRatingScore(movie) {
   if (movie?.letterboxd_rating != null) return movie.letterboxd_rating
-  if (movie?.positive_pct != null) return movie.positive_pct / 20
-  if (movie?.audience_score != null) return movie.audience_score / 20
+  if (movie?.positive_pct != null) return movie.positive_pct / 10
+  if (movie?.audience_score != null) return movie.audience_score / 10
   return 0
 }
 
 export function displayRatingLabel(movie) {
   const score = movieRatingScore(movie)
   if (!score) return null
-  return (score * 2).toFixed(1)
+  return score.toFixed(1)
 }
 
 export function genreSubtitle(genres, max = 2) {

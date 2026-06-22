@@ -1,7 +1,5 @@
 from datetime import datetime
-from typing import Self
-
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class MovieRead(BaseModel):
@@ -65,11 +63,6 @@ class MovieDetailRead(BaseModel):
             return v
         return min(float(v), 100.0)
 
-    @model_validator(mode="after")
-    def normalize_tv_rating(self) -> Self:
-        if self.content_type == "TV Show" and self.letterboxd_rating is not None:
-            self.letterboxd_rating = round(self.letterboxd_rating / 2, 1)
-        return self
 
 
 class ReviewRead(BaseModel):

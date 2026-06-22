@@ -346,10 +346,10 @@ async def generate_recommendation_reason(
     )
 
     if short_mode:
-        num_predict = 30
-        prompt = f"""Türkçe yaz. İngilizce kelime kullanma.
-{source_movie_title} ve {recommended_movie_title} neden benzer?
-Maksimum 10 kelime yaz."""
+        num_predict = 50
+        prompt = f"""Sadece Türkçe yaz. İngilizce kelime kullanma.
+{source_movie_title} ({source_genres_tr}) ve {recommended_movie_title} ({recommended_genres_tr}) neden benzer?
+1 cümle yaz. Maksimum 15 kelime. Türkçe tür ve tema kelimelerini kullan."""
     else:
         num_predict = 120
         prompt = f"""Türkçe yaz. Kısa cümleler kur. İngilizce kelime kullanma.
@@ -416,7 +416,16 @@ Sadece bu 2 cümleyi yaz."""
 
     # Ortak post-processing
     if short_mode:
-        return apply_tr_fixes(result)
+        result = apply_tr_fixes(result)
+        meta_patterns = [
+            r"Cümle\s*\d+\s*[:;]?\s*",
+            r"^\d+[\.\)]\s*",
+            r"Because\b.*",
+        ]
+        for pattern in meta_patterns:
+            result = re.sub(pattern, "", result, flags=re.IGNORECASE | re.MULTILINE)
+        result = " ".join(result.split()).strip()
+        return result
 
     meta_patterns = [
         r"Birinci\s+Cümle[n]?\s*[:;]?\s*",
