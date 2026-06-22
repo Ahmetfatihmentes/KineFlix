@@ -148,12 +148,12 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppTheme.background,
         body: Stack(
           children: [
-            const FilmGrain(),
-            const Center(
+            FilmGrain(),
+            Center(
               child: CircularProgressIndicator(color: AppTheme.primary),
             ),
           ],
@@ -295,8 +295,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                border: const Border(
+                              decoration: const BoxDecoration(
+                                border: Border(
                                   left: BorderSide(
                                     color: AppTheme.primary,
                                     width: 2,
@@ -348,23 +348,23 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: _aiLoading
-                                  ? Column(
+                                  ? const Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
+                                        Text(
                                           '🤖 AI Eleştirmen Değerlendirmesi',
                                           style: TextStyle(
                                             color: AppTheme.primary,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                        const SizedBox(height: 12),
-                                        const LinearProgressIndicator(
+                                        SizedBox(height: 12),
+                                        LinearProgressIndicator(
                                           color: AppTheme.primary,
                                         ),
-                                        const SizedBox(height: 8),
-                                        const Text(
+                                        SizedBox(height: 8),
+                                        Text(
                                           'AI analizi yapılıyor...',
                                           style: TextStyle(
                                             color: AppTheme.onSurfaceVariant,

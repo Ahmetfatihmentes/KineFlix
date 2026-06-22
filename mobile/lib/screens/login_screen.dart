@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 48),
                   Text('KineFlix', style: AppTheme.displayTitle(size: 56)),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     'Sinema deneyimine hoş geldin',
                     style: TextStyle(color: AppTheme.onSurfaceVariant),
                   ),

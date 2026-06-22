@@ -98,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     style: AppTheme.headlineTitle(size: 24),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     'En az bir tür seçin. Öneriler buna göre şekillenecek.',
                     style: TextStyle(
                       color: AppTheme.onSurfaceVariant,
@@ -128,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: selected
-                                  ? AppTheme.primary.withOpacity(0.15)
+                                  ? AppTheme.primary.withValues(alpha: 0.15)
                                   : AppTheme.surface,
                               border: Border.all(
                                 color: selected

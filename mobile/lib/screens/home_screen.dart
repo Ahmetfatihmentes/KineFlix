@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'SANA ÖZEL',
                     style: TextStyle(
                       color: AppTheme.primary,
@@ -229,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           left: BorderSide(color: AppTheme.primary, width: 2),
                         ),

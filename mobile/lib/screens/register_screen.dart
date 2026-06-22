@@ -84,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 32),
                   Text('Kayıt Ol', style: AppTheme.displayTitle(size: 48)),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     'KineFlix hesabı oluştur',
                     style: TextStyle(color: AppTheme.onSurfaceVariant),
                   ),
