@@ -3,11 +3,13 @@ from __future__ import annotations
 import asyncio
 import logging
 import pickle
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-#from sentence_transformers import SentenceTransformer
+import numpy as np
+
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
@@ -18,9 +20,32 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.ai_engine.nlp_preprocessor import clean_text
 from backend.core.database import AsyncSessionLocal
 from backend.models.movie import Movie
+
+_TURKISH_STOP_WORDS = {
+    "bir", "ve", "bu", "da", "de", "ile", "için", "olan",
+    "gibi", "daha", "çok", "en", "her", "ama", "ya", "veya", "ne",
+    "o", "şu", "ben", "sen", "biz", "siz", "onlar", "var", "yok",
+}
+_ENGLISH_STOP_WORDS = {
+    "a", "an", "the", "and", "or", "but", "in", "on",
+    "at", "to", "for", "of", "with", "by", "from", "is", "are", "was",
+    "were", "be", "been", "have", "has", "had", "that", "this", "it",
+}
+_STOP_WORDS = list(_TURKISH_STOP_WORDS | _ENGLISH_STOP_WORDS)
+
+_PUNCT_RE = re.compile(r"[^a-z0-9\sçğıöşüÇĞİÖŞÜ]")
+_SPACE_RE = re.compile(r"\s+")
+
+
+def _clean_text(text: str | None) -> str:
+    """Noktalama temizler, Türkçe karakterleri korur."""
+    if not text:
+        return ""
+    normalized = text.lower()
+    normalized = _PUNCT_RE.sub(" ", normalized)
+    return _SPACE_RE.sub(" ", normalized).strip()
 
 
 logger = logging.getLogger(__name__)
@@ -109,7 +134,7 @@ class MovieRecommender:
             movie.director or "",
             movie.tagline_tr or movie.tagline or "",
         ]
-        return clean_text(" ".join(part for part in parts if part))
+        return _clean_text(" ".join(part for part in parts if part))
 
     def _build_embeddings(self, corpus: list[str]) -> None:
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
@@ -149,6 +174,10 @@ class MovieRecommender:
     async def _fetch_movies_data(self, db: AsyncSession) -> list[tuple[int, str]]:
         result = await db.execute(select(Movie))
         movies = list(result.scalars().all())
+        for movie in movies:
+            pct = movie.positive_pct
+            if pct is not None and (np.isinf(pct) or np.isnan(pct)):
+                movie.positive_pct = None
         return [(movie.id, self._build_corpus_text(movie)) for movie in movies]
 
     def _apply_cache_payload(self, payload: _TfidfCachePayload) -> None:
@@ -172,7 +201,13 @@ class MovieRecommender:
             logger.error("Cannot build hybrid matrix: movie catalog is empty.")
             return
 
-        self._vectorizer = TfidfVectorizer(max_features=TFIDF_MAX_FEATURES)
+        self._vectorizer = TfidfVectorizer(
+            max_features=TFIDF_MAX_FEATURES,
+            min_df=2,
+            max_df=0.85,
+            sublinear_tf=True,
+            stop_words=_STOP_WORDS,
+        )
         self._matrix = self._vectorizer.fit_transform(corpus)
 
         self._build_embeddings(corpus)
