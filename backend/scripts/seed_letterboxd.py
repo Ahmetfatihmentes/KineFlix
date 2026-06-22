@@ -145,21 +145,22 @@ async def seed_letterboxd_dataset(
         logger.info("Removed stale TF-IDF cache: %s", TFIDF_CACHE_PATH)
 
     logger.warning(
-        "UYARI: Bu script sadece film verilerini günceller, kullanıcı verileri korunur."
+        "UYARI: Bu script film verilerini upsert eder. Kullanıcı watchlist/history korunur."
     )
 
     async with AsyncSessionLocal() as db:
         await db.execute(delete(MovieVector))
         await db.execute(delete(Review))
-        await db.execute(delete(Movie))
 
         for i in range(0, len(movies_data), BATCH_SIZE):
             batch = movies_data[i : i + BATCH_SIZE]
             stmt = insert(Movie).values(batch)
+            update_cols = {col: stmt.excluded[col] for col in batch[0] if col != "id"}
+            stmt = stmt.on_conflict_do_update(index_elements=["id"], set_=update_cols)
             await db.execute(stmt)
             batch_number = i // BATCH_SIZE + 1
-            logger.info("Batch %s eklendi: %s film", batch_number, len(batch))
-            print(f"Batch {batch_number} eklendi: {len(batch)} film")
+            logger.info("Batch %s upsert: %s film", batch_number, len(batch))
+            print(f"Batch {batch_number} upsert: {len(batch)} film")
 
         await db.commit()
 

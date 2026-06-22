@@ -1,22 +1,32 @@
 import axios from 'axios'
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 })
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('kineflix_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error.response?.status === 401 &&
+      !error.config?.url?.includes('/auth/login')
+    ) {
+      localStorage.removeItem('kineflix_user')
+      localStorage.removeItem('kineflix_user_id')
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
+  },
+)
 
 export const loginUser = (email, password) =>
   api.post('/auth/login', { email, password })
+
+export const logoutUser = () => api.post('/auth/logout')
 
 export const getMe = () => api.get('/auth/me')
 

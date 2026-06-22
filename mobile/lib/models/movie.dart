@@ -53,6 +53,6 @@ class Movie {
   String get displayOverview => overviewTr ?? overview ?? '';
   String get displayTagline => taglineTr ?? tagline ?? '';
   String get displayGenre => genres?.split(',').first.trim() ?? '';
-  double get displayRating => (letterboxdRating ?? 0) * 2;
+  double get displayRating => letterboxdRating ?? 0;
   bool get isMovie => contentType == 'Movie';
 }

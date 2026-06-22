@@ -32,7 +32,6 @@ export default function RegisterPage() {
       const response = await registerUser(email, password, fullName.trim())
       localStorage.setItem('kineflix_user', response.data.email)
       const loginRes = await loginUser(email, password)
-      localStorage.setItem('kineflix_token', loginRes.data.access_token)
       localStorage.setItem('kineflix_user_id', String(loginRes.data.user_id))
       navigate('/onboarding')
     } catch (err) {

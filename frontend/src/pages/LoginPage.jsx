@@ -19,7 +19,6 @@ export default function LoginPage() {
     try {
       const { data } = await loginUser(email, password)
       localStorage.setItem('kineflix_user', data.email)
-      localStorage.setItem('kineflix_token', data.access_token)
       localStorage.setItem('kineflix_user_id', String(data.user_id))
       const genres = localStorage.getItem('kineflix_genres')
       navigate(genres ? '/home' : '/onboarding')

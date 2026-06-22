@@ -107,8 +107,8 @@ export default function HomePage() {
     let cancelled = false
 
     async function fetchPersonalRec() {
-      const token = localStorage.getItem('kineflix_token')
-      if (!token) {
+      const user = localStorage.getItem('kineflix_user')
+      if (!user) {
         setPersonalLoading(false)
         return
       }

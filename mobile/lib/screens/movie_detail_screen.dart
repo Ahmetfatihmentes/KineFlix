@@ -74,10 +74,10 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     setState(() => _recLoading = true);
 
     List<Movie> similar = [];
-    for (var attempt = 0; attempt < 20; attempt++) {
+    for (var attempt = 0; attempt < 10; attempt++) {
       similar = await MovieService.getRecommendations(widget.movieId);
       if (similar.isNotEmpty) break;
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 5));
       if (!mounted) return;
     }
 

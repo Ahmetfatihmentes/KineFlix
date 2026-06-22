@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
-import { getMe, getWatchHistory, getWatchlist } from '../services/api'
+import { getMe, getWatchHistory, getWatchlist, logoutUser } from '../services/api'
 import { firstGenre, posterSrc } from '../utils/movie'
 
 function computeTopGenres(watchHistory) {
@@ -79,8 +79,12 @@ export default function ProfilePage() {
   const tasteText = `Ağırlıklı olarak ${topGenreName} türünde içerikler izleyen bir sinema tutkunusun.`
   const tasteBadges = topGenres.slice(0, 3).map(([name]) => name)
 
-  const handleLogout = () => {
-    localStorage.removeItem('kineflix_token')
+  const handleLogout = async () => {
+    try {
+      await logoutUser()
+    } catch {
+      // cookie silme başarısız olsa bile yerel temizliği yap
+    }
     localStorage.removeItem('kineflix_user')
     localStorage.removeItem('kineflix_user_id')
     navigate('/login')

@@ -1,11 +1,16 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/constants.dart';
 
 class AuthService {
+  static const _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
   static Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
@@ -16,8 +21,11 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
+        await _secureStorage.write(
+          key: AppConstants.tokenKey,
+          value: data['access_token'] as String?,
+        );
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(AppConstants.tokenKey, data['access_token']);
         await prefs.setString(AppConstants.userEmailKey, data['email'] ?? email);
         await prefs.setInt(AppConstants.userIdKey, data['user_id'] ?? 0);
         return {'success': true};
@@ -81,8 +89,7 @@ class AuthService {
   }
 
   static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(AppConstants.tokenKey);
+    return _secureStorage.read(key: AppConstants.tokenKey);
   }
 
   static Future<String?> getUserEmail() async {
@@ -91,8 +98,10 @@ class AuthService {
   }
 
   static Future<void> logout() async {
+    await _secureStorage.delete(key: AppConstants.tokenKey);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove(AppConstants.userEmailKey);
+    await prefs.remove(AppConstants.userIdKey);
   }
 
   static Future<bool> isLoggedIn() async {

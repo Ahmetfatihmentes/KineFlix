@@ -124,8 +124,8 @@ export default function MovieDetailPage() {
       return
     }
 
-    const token = localStorage.getItem('kineflix_token')
-    if (!token) return
+    const user = localStorage.getItem('kineflix_user')
+    if (!user) return
 
     getWatchHistory()
       .then((res) => {
