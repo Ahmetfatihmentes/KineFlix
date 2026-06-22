@@ -1,3 +1,5 @@
+import random
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,18 +59,19 @@ async def get_personalized_recommendation(
         select(WatchHistory)
         .where(WatchHistory.user_id == user_id)
         .order_by(WatchHistory.watched_at.desc())
-        .limit(1)
+        .limit(5)
     )
-    last_watched = result.scalar_one_or_none()
+    last_watched_list = list(result.scalars().all())
 
-    if last_watched and movie_recommender.is_ready:
-        candidates = movie_recommender.recommend(last_watched.movie_id, top_k=1)
+    if last_watched_list and movie_recommender.is_ready:
+        source_entry = random.choice(last_watched_list)
+        candidates = movie_recommender.recommend(source_entry.movie_id, top_k=10)
         if candidates:
             recommended_id = candidates[0].movie_id
             result2 = await db.execute(select(Movie).where(Movie.id == recommended_id))
             recommended = result2.scalar_one_or_none()
 
-            result3 = await db.execute(select(Movie).where(Movie.id == last_watched.movie_id))
+            result3 = await db.execute(select(Movie).where(Movie.id == source_entry.movie_id))
             source = result3.scalar_one_or_none()
 
             if recommended and source:

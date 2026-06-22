@@ -10,14 +10,18 @@ from backend.core.redis_client import get_redis
 
 logger = logging.getLogger(__name__)
 
-_MAX_REQUESTS = 60
+_MAX_REQUESTS = 300
 _WINDOW_SECONDS = 60
+_EXEMPT_PATHS = {"/docs", "/redoc", "/openapi.json", "/health"}
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Dakikada _MAX_REQUESTS isteğe izin ver. Redis kapalıysa atlanır."""
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        if request.url.path in _EXEMPT_PATHS:
+            return await call_next(request)
+
         redis = await get_redis()
         if not redis:
             return await call_next(request)
