@@ -429,6 +429,9 @@ Sadece bu 2 cümleyi yaz."""
         r"Üçüncü\s+Cümle[n]?\s*[:;]?\s*",
         r"Cümle\s*\d+\s*[:;]?\s*",
         r"^\d+[\.\)]\s*",
+        r"de ortak tür ve atmosferi anlatırız\s*:?\s*",
+        r"de izleyicinin neden sevebileceğini anlatırız\s*:?\s*",
+        r"ortak tür ve atmosferi anlatırız\s*:?\s*",
     ]
     for pattern in meta_patterns:
         result = re.sub(pattern, "", result, flags=re.IGNORECASE | re.MULTILINE)

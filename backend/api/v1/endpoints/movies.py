@@ -1,4 +1,5 @@
 import json
+import math
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
@@ -49,15 +50,25 @@ async def get_movie_stats(db: AsyncSession = Depends(get_db)) -> dict:
     if redis:
         cached = await redis.get(cache_key)
         if cached:
-            return json.loads(cached)
+            cached_data = json.loads(cached)
+            if cached_data.get("avg_satisfaction_pct") is not None:
+                return cached_data
+            await redis.delete(cache_key)
 
     movie_count = (await db.execute(select(func.count()).select_from(Movie))).scalar() or 0
     review_count = (await db.execute(select(func.count()).select_from(Review))).scalar() or 0
     avg_pct = (
         await db.execute(
-            select(func.avg(Movie.positive_pct)).where(Movie.positive_pct.isnot(None))
+            select(func.avg(Movie.positive_pct)).where(
+                Movie.positive_pct.isnot(None),
+                Movie.positive_pct >= 0,
+                Movie.positive_pct <= 100,
+            )
         )
     ).scalar()
+
+    if avg_pct is None or math.isnan(avg_pct) or math.isinf(avg_pct):
+        avg_pct = None
 
     stats = {
         "movie_count": movie_count,

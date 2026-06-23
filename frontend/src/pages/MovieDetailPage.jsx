@@ -80,6 +80,7 @@ export default function MovieDetailPage() {
   const [loadingReasons, setLoadingReasons] = useState({})
   const [hoveredMovieId, setHoveredMovieId] = useState(null)
   const [aiReview, setAiReview] = useState(null)
+  const [showAllActors, setShowAllActors] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -181,7 +182,7 @@ export default function MovieDetailPage() {
       try {
         const { data } = await getAiReview(id)
         if (cancelled) return
-        if (data.has_reviews && data.ai_review) {
+        if (data.ai_review) {
           setAiReview(data)
         }
       } catch (e) {
@@ -339,7 +340,7 @@ export default function MovieDetailPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <div className="space-y-4 font-body text-body-md text-on-surface-variant">
                 <p className="leading-relaxed opacity-90">{overview || 'Özet mevcut değil.'}</p>
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-outline-variant/30">
@@ -353,16 +354,29 @@ export default function MovieDetailPage() {
                       </span>
                     </div>
                   )}
-                  {movie.actors && (
-                    <div>
-                      <span className="block font-label text-label-md text-on-surface-variant uppercase mb-1">
-                        Oyuncular
-                      </span>
-                      <span className="font-body text-title-md text-on-surface font-semibold line-clamp-2">
-                        {movie.actors}
-                      </span>
-                    </div>
-                  )}
+                  {movie.actors && (() => {
+                    const all = movie.actors.split(',').map((a) => a.trim()).filter(Boolean)
+                    const visible = showAllActors ? all : all.slice(0, 3)
+                    return (
+                      <div>
+                        <span className="block font-label text-label-md text-on-surface-variant uppercase mb-1">
+                          Oyuncular
+                        </span>
+                        <span className="font-body text-title-md text-on-surface font-semibold">
+                          {visible.join(', ')}
+                        </span>
+                        {all.length > 3 && (
+                          <button
+                            type="button"
+                            onClick={() => setShowAllActors((v) => !v)}
+                            className="block mt-1 font-label text-xs text-primary hover:underline"
+                          >
+                            {showAllActors ? 'Daha Az' : 'Tümünü Gör'}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
 
