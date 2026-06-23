@@ -1,7 +1,7 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.config import get_settings
@@ -39,6 +39,36 @@ async def search_movies(
         await redis.setex(cache_key, 1800, json.dumps([m.model_dump() for m in validated], default=str))
 
     return validated
+
+
+@router.get("/stats")
+async def get_movie_stats(db: AsyncSession = Depends(get_db)) -> dict:
+    redis = await get_redis()
+    cache_key = "movie_stats"
+
+    if redis:
+        cached = await redis.get(cache_key)
+        if cached:
+            return json.loads(cached)
+
+    movie_count = (await db.execute(select(func.count()).select_from(Movie))).scalar() or 0
+    review_count = (await db.execute(select(func.count()).select_from(Review))).scalar() or 0
+    avg_pct = (
+        await db.execute(
+            select(func.avg(Movie.positive_pct)).where(Movie.positive_pct.isnot(None))
+        )
+    ).scalar()
+
+    stats = {
+        "movie_count": movie_count,
+        "review_count": review_count,
+        "avg_satisfaction_pct": round(avg_pct) if avg_pct is not None else None,
+    }
+
+    if redis:
+        await redis.setex(cache_key, 3600, json.dumps(stats))
+
+    return stats
 
 
 @router.get("/{movie_id}", response_model=MovieDetailRead)

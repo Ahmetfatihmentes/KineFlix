@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../core/constants.dart';
@@ -32,7 +33,9 @@ class MovieService {
         final List data = jsonDecode(utf8.decode(res.bodyBytes));
         return data.map((e) => Movie.fromJson(e)).toList();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.searchMovies hatası: $e');
+    }
     return [];
   }
 
@@ -46,7 +49,9 @@ class MovieService {
       if (res.statusCode == 200) {
         return Movie.fromJson(jsonDecode(utf8.decode(res.bodyBytes)));
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getMovieDetail hatası: $e');
+    }
     return null;
   }
 
@@ -66,7 +71,9 @@ class MovieService {
           return [];
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getRecommendations hatası: $e');
+    }
     return [];
   }
 
@@ -88,7 +95,9 @@ class MovieService {
         final data = jsonDecode(utf8.decode(res.bodyBytes));
         return data['reason'];
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getRecommendationReason hatası: $e');
+    }
     return null;
   }
 
@@ -102,7 +111,9 @@ class MovieService {
       if (res.statusCode == 200) {
         return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getAiReview hatası: $e');
+    }
     return null;
   }
 
@@ -119,7 +130,9 @@ class MovieService {
           return data.map((e) => Movie.fromJson(e)).toList();
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getWatchlist hatası: $e');
+    }
     return [];
   }
 
@@ -136,7 +149,9 @@ class MovieService {
           return data.map((e) => Movie.fromJson(e)).toList();
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getWatchHistory hatası: $e');
+    }
     return [];
   }
 
@@ -149,7 +164,8 @@ class MovieService {
         body: jsonEncode({'movie_id': movieId}),
       );
       return res.statusCode == 201 || res.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('MovieService.addToWatchlist hatası: $e');
       return false;
     }
   }
@@ -162,7 +178,8 @@ class MovieService {
         headers: headers,
       );
       return res.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('MovieService.removeFromWatchlist hatası: $e');
       return false;
     }
   }
@@ -176,7 +193,8 @@ class MovieService {
         body: jsonEncode({'movie_id': movieId}),
       );
       return res.statusCode == 201 || res.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('MovieService.addToWatchHistory hatası: $e');
       return false;
     }
   }
@@ -191,7 +209,9 @@ class MovieService {
       if (res.statusCode == 200) {
         return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getPersonalizedRecommendation hatası: $e');
+    }
     return null;
   }
 
@@ -206,7 +226,9 @@ class MovieService {
         final data = jsonDecode(utf8.decode(res.bodyBytes));
         return data['youtube_url'] as String?;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getTrailer hatası: $e');
+    }
     return null;
   }
 
@@ -223,7 +245,9 @@ class MovieService {
           return List<Map<String, dynamic>>.from(data);
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('MovieService.getReviews hatası: $e');
+    }
     return [];
   }
 }

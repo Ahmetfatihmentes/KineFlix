@@ -9,6 +9,7 @@ import '../screens/profile_screen.dart';
 import '../screens/register_screen.dart';
 import '../screens/search_screen.dart';
 import '../screens/splash_screen.dart';
+import '../screens/stats_screen.dart';
 import '../screens/watchlist_screen.dart';
 
 final appRouter = GoRouter(
@@ -29,5 +30,6 @@ final appRouter = GoRouter(
     GoRoute(path: '/watchlist', builder: (c, s) => const WatchlistScreen()),
     GoRoute(path: '/history', builder: (c, s) => const HistoryScreen()),
     GoRoute(path: '/profile', builder: (c, s) => const ProfileScreen()),
+    GoRoute(path: '/stats', builder: (c, s) => const StatsScreen()),
   ],
 );

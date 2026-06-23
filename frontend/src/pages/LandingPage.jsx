@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getMovieStats } from '../services/api'
 
 const HERO_BG =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDKeK7034oqBrcEmXTeAZez4z4rObxhjPfW1SlpPhrmS21reBmIDAw_MH39yehbCtH_0t75IhV_MEsWZnf-3GhgFCWf8ya1ukjmyJQU_EosfIcQsazGy3nrkMzxHpXqpjz4ava3W0dOGKqIFzGAwKX1xdwSV4qroupO2euI0UBXTUrafUOVQ8IpSGrbQT5ZaoufQhscnWfYZ1h2xXgXlLiRNmo6Wt9e81W6mhPDUoUOt-I8hzHBCYlUjOqOHtpmEu9XJlJelv0RZfs'
@@ -40,13 +41,38 @@ const STEPS = [
   },
 ]
 
-const STATS = [
+const STATS_FALLBACK = [
   { value: '54.000+', label: 'Film & Dizi' },
   { value: '238.000+', label: 'Eleştirmen Yorumu' },
   { value: '%94', label: 'Ortalama Memnuniyet' },
 ]
 
+function buildStats(data) {
+  return [
+    {
+      value: data.movie_count ? data.movie_count.toLocaleString('tr-TR') + '+' : STATS_FALLBACK[0].value,
+      label: 'Film & Dizi',
+    },
+    {
+      value: data.review_count ? data.review_count.toLocaleString('tr-TR') + '+' : STATS_FALLBACK[1].value,
+      label: 'Eleştirmen Yorumu',
+    },
+    {
+      value: data.avg_satisfaction_pct != null ? `%${data.avg_satisfaction_pct}` : STATS_FALLBACK[2].value,
+      label: 'Ortalama Memnuniyet',
+    },
+  ]
+}
+
 export default function LandingPage() {
+  const [stats, setStats] = useState(STATS_FALLBACK)
+
+  useEffect(() => {
+    getMovieStats()
+      .then(({ data }) => setStats(buildStats(data)))
+      .catch(() => {})
+  }, [])
+
   useEffect(() => {
     const onScroll = () => {
       const navbar = document.getElementById('landing-navbar')
@@ -198,7 +224,7 @@ export default function LandingPage() {
       <section className="py-24 bg-background border-b border-outline-variant/30">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 divide-y md:divide-y-0 md:divide-x divide-outline-variant/30 text-center">
-            {STATS.map((stat) => (
+            {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col items-center py-6 md:py-0">
                 <div className="font-display text-[48px] md:text-display-lg text-primary mb-2">
                   {stat.value}

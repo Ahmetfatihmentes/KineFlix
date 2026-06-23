@@ -1,8 +1,11 @@
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import HTTPException
+from jose import jwt
 
+from backend.core.config import get_settings
 from backend.core.deps import get_current_user_id
 from backend.core.security import create_access_token
 
@@ -371,3 +374,35 @@ async def test_get_current_user_id_returns_user_id() -> None:
     user_id = await get_current_user_id(authorization=f"Bearer {token}")
 
     assert user_id == 42
+
+
+def test_expired_token_returns_401(client) -> None:
+    expired_token = jwt.encode(
+        {
+            "sub": "1",
+            "email": "expired@example.com",
+            "exp": datetime.now(timezone.utc) - timedelta(hours=1),
+        },
+        get_settings().SECRET_KEY,
+        algorithm="HS256",
+    )
+    response = client.get("/auth/me", headers={"Authorization": f"Bearer {expired_token}"})
+
+    assert response.status_code == 401
+
+
+def test_invalid_token_returns_401_on_watchlist(client) -> None:
+    response = client.get(
+        "/watchlist/",
+        headers={"Authorization": "Bearer bu-token-gecersiz"},
+    )
+
+    assert response.status_code == 401
+
+
+def test_watchlist_remove_returns_404_for_deleted_movie_entry(client, auth_headers) -> None:
+    # Movie 888 has no watchlist entry — simulates a deleted movie whose entry was cleaned up.
+    response = client.delete("/watchlist/888", headers=auth_headers)
+
+    assert response.status_code == 404
+    assert "bulunamadı" in response.json()["detail"].lower()

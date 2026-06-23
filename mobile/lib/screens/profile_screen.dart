@@ -166,6 +166,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }),
                       const SizedBox(height: 24),
                       GhostButton(
+                        label: 'İstatistiklerim',
+                        icon: Icons.bar_chart,
+                        onPressed: () => context.push('/stats'),
+                      ),
+                      const SizedBox(height: 16),
+                      GhostButton(
                         label: 'Geçmişi Gör',
                         icon: Icons.history,
                         onPressed: () => context.push('/history'),

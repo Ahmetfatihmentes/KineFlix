@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
@@ -20,36 +20,71 @@ import {
 } from '../services/api'
 import { firstGenre, displayOverview, displayTagline, posterSrc } from '../utils/movie'
 
+const initialLoadingState = {
+  loading: true,
+  error: '',
+  recLoading: false,
+  recError: false,
+  trailerLoading: false,
+  watchLoading: false,
+  watchlistLoading: false,
+  whyLoading: false,
+  aiReviewLoading: false,
+}
+
+function loadingReducer(state, action) {
+  switch (action.type) {
+    case 'PAGE_LOAD_START':
+      return { ...state, loading: true, error: '' }
+    case 'PAGE_LOAD_DONE':
+      return { ...state, loading: false }
+    case 'PAGE_LOAD_ERROR':
+      return { ...state, loading: false, error: action.payload }
+    case 'REC_START':
+      return { ...state, recLoading: true, recError: false }
+    case 'REC_DONE':
+      return { ...state, recLoading: false }
+    case 'REC_ERROR':
+      return { ...state, recLoading: false, recError: true }
+    case 'TRAILER_LOADING':
+      return { ...state, trailerLoading: action.payload }
+    case 'WATCH_LOADING':
+      return { ...state, watchLoading: action.payload }
+    case 'WATCHLIST_LOADING':
+      return { ...state, watchlistLoading: action.payload }
+    case 'WHY_LOADING':
+      return { ...state, whyLoading: action.payload }
+    case 'AI_REVIEW_START':
+      return { ...state, aiReviewLoading: true }
+    case 'AI_REVIEW_DONE':
+      return { ...state, aiReviewLoading: false }
+    default:
+      return state
+  }
+}
+
 export default function MovieDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [state, dispatch] = useReducer(loadingReducer, initialLoadingState)
+  const { loading, error, recLoading, recError, trailerLoading, watchLoading, watchlistLoading, whyLoading, aiReviewLoading } = state
   const [movie, setMovie] = useState(null)
   const [reviews, setReviews] = useState([])
   const [similar, setSimilar] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [recLoading, setRecLoading] = useState(false)
-  const [recError, setRecError] = useState(false)
-  const [error, setError] = useState('')
   const [trailerKey, setTrailerKey] = useState(null)
   const [showTrailer, setShowTrailer] = useState(false)
-  const [trailerLoading, setTrailerLoading] = useState(false)
   const [watched, setWatched] = useState(false)
   const [inWatchlist, setInWatchlist] = useState(false)
-  const [watchLoading, setWatchLoading] = useState(false)
-  const [watchlistLoading, setWatchlistLoading] = useState(false)
   const [whyRecommended, setWhyRecommended] = useState(null)
-  const [whyLoading, setWhyLoading] = useState(false)
   const [reasonCache, setReasonCache] = useState({})
   const [loadingReasons, setLoadingReasons] = useState({})
   const [hoveredMovieId, setHoveredMovieId] = useState(null)
   const [aiReview, setAiReview] = useState(null)
-  const [aiReviewLoading, setAiReviewLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     async function load() {
-      setLoading(true)
-      setError('')
+      dispatch({ type: 'PAGE_LOAD_START' })
       try {
         const [movieRes, reviewsRes] = await Promise.all([
           getMovie(id),
@@ -58,8 +93,7 @@ export default function MovieDetailPage() {
         if (cancelled) return
         setMovie(movieRes.data)
         setReviews(reviewsRes.data)
-        setRecLoading(true)
-        setRecError(false)
+        dispatch({ type: 'REC_START' })
         const loadRecommendations = async (attempt = 0) => {
           try {
             const recRes = await getRecommendations(id, 8)
@@ -67,7 +101,7 @@ export default function MovieDetailPage() {
             const recData = recRes.data
             if (Array.isArray(recData)) {
               setSimilar(recData)
-              setRecLoading(false)
+              dispatch({ type: 'REC_DONE' })
               return
             }
             if (recData?.status === 'loading' && attempt < 10) {
@@ -76,21 +110,19 @@ export default function MovieDetailPage() {
               return
             }
             setSimilar([])
-            setRecLoading(false)
-            setRecError(true)
+            dispatch({ type: 'REC_ERROR' })
           } catch {
             if (!cancelled) {
               setSimilar([])
-              setRecLoading(false)
-              setRecError(true)
+              dispatch({ type: 'REC_ERROR' })
             }
           }
         }
         await loadRecommendations()
       } catch {
-        if (!cancelled) setError('Film bulunamadı veya sunucu hatası.')
+        if (!cancelled) dispatch({ type: 'PAGE_LOAD_ERROR', payload: 'Film bulunamadı veya sunucu hatası.' })
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) dispatch({ type: 'PAGE_LOAD_DONE' })
       }
     }
     load()
@@ -105,14 +137,14 @@ export default function MovieDetailPage() {
     setWhyRecommended(null)
 
     const fetchWhyRecommended = async (sourceId, recommendedId) => {
-      setWhyLoading(true)
+      dispatch({ type: 'WHY_LOADING', payload: true })
       try {
         const { data } = await getRecommendationReason(sourceId, recommendedId)
         setWhyRecommended(data)
       } catch (e) {
         console.error(e)
       } finally {
-        setWhyLoading(false)
+        dispatch({ type: 'WHY_LOADING', payload: false })
       }
     }
 
@@ -144,7 +176,7 @@ export default function MovieDetailPage() {
     let cancelled = false
 
     const fetchAiReview = async () => {
-      setAiReviewLoading(true)
+      dispatch({ type: 'AI_REVIEW_START' })
       setAiReview(null)
       try {
         const { data } = await getAiReview(id)
@@ -155,7 +187,7 @@ export default function MovieDetailPage() {
       } catch (e) {
         console.error(e)
       } finally {
-        if (!cancelled) setAiReviewLoading(false)
+        if (!cancelled) dispatch({ type: 'AI_REVIEW_DONE' })
       }
     }
 
@@ -197,7 +229,7 @@ export default function MovieDetailPage() {
       setShowTrailer(true)
       return
     }
-    setTrailerLoading(true)
+    dispatch({ type: 'TRAILER_LOADING', payload: true })
     try {
       const res = await getTrailer(id)
       setTrailerKey(res.data.youtube_key)
@@ -205,12 +237,12 @@ export default function MovieDetailPage() {
     } catch {
       alert('Bu film için fragman bulunamadı.')
     } finally {
-      setTrailerLoading(false)
+      dispatch({ type: 'TRAILER_LOADING', payload: false })
     }
   }
 
   const handleWatch = async () => {
-    setWatchLoading(true)
+    dispatch({ type: 'WATCH_LOADING', payload: true })
     try {
       await addToWatchHistory(Number(id))
       setWatched(true)
@@ -219,12 +251,12 @@ export default function MovieDetailPage() {
     } catch (e) {
       console.error(e)
     } finally {
-      setWatchLoading(false)
+      dispatch({ type: 'WATCH_LOADING', payload: false })
     }
   }
 
   const handleWatchlist = async () => {
-    setWatchlistLoading(true)
+    dispatch({ type: 'WATCHLIST_LOADING', payload: true })
     try {
       if (inWatchlist) {
         await removeFromWatchlist(Number(id))
@@ -236,7 +268,7 @@ export default function MovieDetailPage() {
     } catch (e) {
       console.error(e)
     } finally {
-      setWatchlistLoading(false)
+      dispatch({ type: 'WATCHLIST_LOADING', payload: false })
     }
   }
 

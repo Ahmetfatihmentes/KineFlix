@@ -11,7 +11,6 @@ from sqlalchemy.dialects.postgresql import insert
 
 from backend.core.database import AsyncSessionLocal
 from backend.models.movie import Movie
-from backend.models.movie_vector import MovieVector
 from backend.models.review import Review
 from backend.services.recommender import TFIDF_CACHE_PATH
 
@@ -149,7 +148,6 @@ async def seed_letterboxd_dataset(
     )
 
     async with AsyncSessionLocal() as db:
-        await db.execute(delete(MovieVector))
         await db.execute(delete(Review))
 
         for i in range(0, len(movies_data), BATCH_SIZE):

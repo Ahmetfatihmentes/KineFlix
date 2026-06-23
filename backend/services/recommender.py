@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import pickle
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import joblib
 import numpy as np
 
 try:
@@ -52,7 +52,7 @@ def _clean_text(text: str | None) -> str:
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-TFIDF_CACHE_PATH = PROJECT_ROOT / "models" / "tfidf_matrix.pkl"
+TFIDF_CACHE_PATH = PROJECT_ROOT / "models" / "tfidf_matrix.joblib"
 MINILM_MODEL_PATH = PROJECT_ROOT / "models" / "kineflix-finetuned-model"
 EMBEDDING_CACHE_PATH = PROJECT_ROOT / "models" / "minilm_embeddings.pkl"
 TFIDF_MAX_FEATURES = 10_000
@@ -229,8 +229,7 @@ class MovieRecommender:
             matrix=self._matrix,
             embeddings=self._embeddings,
         )
-        with TFIDF_CACHE_PATH.open("wb") as cache_file:
-            pickle.dump(payload, cache_file)
+        joblib.dump(payload, TFIDF_CACHE_PATH)
         logger.info("Hibrit cache kaydedildi: %s", TFIDF_CACHE_PATH)
 
     def _try_load_from_pickle(self, movie_count: int) -> bool:
@@ -238,9 +237,8 @@ class MovieRecommender:
             return False
 
         try:
-            with TFIDF_CACHE_PATH.open("rb") as cache_file:
-                payload = pickle.load(cache_file)
-        except (OSError, pickle.UnpicklingError):
+            payload = joblib.load(TFIDF_CACHE_PATH)
+        except Exception:
             logger.warning("Failed to read hybrid cache; rebuilding matrix.")
             return False
 

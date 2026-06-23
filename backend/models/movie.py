@@ -34,6 +34,4 @@ class Movie(Base):
     watchlist: Mapped[list["Watchlist"]] = relationship(
         "Watchlist", back_populates="movie", cascade="all, delete-orphan"
     )
-    vector: Mapped["MovieVector | None"] = relationship(
-        "MovieVector", back_populates="movie", uselist=False
-    )
+

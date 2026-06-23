@@ -42,6 +42,8 @@ export const searchMovies = (query, contentType = '') => {
 export const savePreferences = (genres) =>
   api.post('/users/preferences', { genres })
 
+export const getMovieStats = () => api.get('/movies/stats')
+
 export const getMovie = (id) => api.get(`/movies/${id}`)
 
 export const getRecommendations = (id, limit = 10) =>
