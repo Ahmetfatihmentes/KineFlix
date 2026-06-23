@@ -43,12 +43,13 @@ async def login(
     """
     user = await auth_service.login_user(db=db, credentials=user_in)
     access_token = create_access_token({"sub": str(user.id), "email": user.email})
+    is_production = get_settings().ENVIRONMENT == "production"
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        samesite="lax",
-        secure=get_settings().ENVIRONMENT == "production",
+        samesite="none" if is_production else "lax",
+        secure=is_production,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
     )
