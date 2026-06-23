@@ -9,6 +9,7 @@ from backend.api.error_handlers import register_exception_handlers
 from backend.api.v1.api import api_router
 from backend.core.bootstrap import initialize_database
 from backend.core import logging_config
+from backend.core.config import get_settings
 from backend.core.rate_limiter import RateLimitMiddleware
 from backend.core.redis_client import close_redis, init_redis
 from backend.services.recommender import movie_recommender
@@ -32,12 +33,13 @@ def create_app() -> FastAPI:
 
     app = FastAPI(title="KineFlix Backend", version="0.1.0", lifespan=lifespan)
 
+    settings = get_settings()
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
             "http://localhost:5173",
             "http://127.0.0.1:5173",
-            "https://kineflix-frontend.onrender.com",
+            settings.FRONTEND_URL,
         ],
         allow_credentials=True,
         allow_methods=["*"],
