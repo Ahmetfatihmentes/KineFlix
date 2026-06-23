@@ -5,4 +5,6 @@ from .review import Review  # noqa: F401
 from .user_preference import UserPreference  # noqa: F401
 from .watch_history import WatchHistory  # noqa: F401
 from .watchlist import Watchlist  # noqa: F401
+from .user_review import UserReview  # noqa: F401
+from .movie_like import MovieLike  # noqa: F401
 

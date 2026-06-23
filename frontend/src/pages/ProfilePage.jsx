@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
-import { getMe, getWatchHistory, getWatchlist, logoutUser } from '../services/api'
+import { getMe, getWatchHistory, getWatchlist, logoutUser, uploadAvatar } from '../services/api'
 import { firstGenre, posterSrc } from '../utils/movie'
 
 function computeTopGenres(watchHistory) {
@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const [watchlist, setWatchlist] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [avatarUploading, setAvatarUploading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -78,6 +79,20 @@ export default function ProfilePage() {
   const topGenreName = topGenres[0]?.[0] || 'Dram'
   const tasteText = `Ağırlıklı olarak ${topGenreName} türünde içerikler izleyen bir sinema tutkunusun.`
   const tasteBadges = topGenres.slice(0, 3).map(([name]) => name)
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarUploading(true)
+    try {
+      const { data } = await uploadAvatar(file)
+      setUser((prev) => ({ ...prev, avatar_url: data.avatar_url }))
+    } catch {
+      // sessiz hata
+    } finally {
+      setAvatarUploading(false)
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -129,8 +144,30 @@ export default function ProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
           </div>
           <div className="relative z-10 pt-32 pb-16 flex flex-col items-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-            <div className="w-[120px] h-[120px] rounded-full border-2 border-primary-container bg-primary flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(201,168,76,0.2)]">
-              <span className="text-5xl font-headline text-on-primary uppercase">{avatarLetter}</span>
+            <div className="relative mb-6 group">
+              <div className="w-[120px] h-[120px] rounded-full border-2 border-primary-container bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(201,168,76,0.2)] overflow-hidden">
+                {user?.avatar_url ? (
+                  <img
+                    src={`http://localhost:8000${user.avatar_url}`}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-5xl font-headline text-on-primary uppercase">{avatarLetter}</span>
+                )}
+              </div>
+              <label className="absolute inset-0 flex items-center justify-center rounded-full cursor-pointer bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-white text-xs font-label uppercase tracking-wider text-center px-2">
+                  {avatarUploading ? '...' : 'Değiştir'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                  disabled={avatarUploading}
+                />
+              </label>
             </div>
             <h1 className="font-display text-display-lg text-primary text-center uppercase tracking-widest mb-2">
               {displayName}

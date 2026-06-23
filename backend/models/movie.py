@@ -34,4 +34,7 @@ class Movie(Base):
     watchlist: Mapped[list["Watchlist"]] = relationship(
         "Watchlist", back_populates="movie", cascade="all, delete-orphan"
     )
+    user_reviews: Mapped[list["UserReview"]] = relationship(
+        "UserReview", back_populates="movie", cascade="all, delete-orphan"
+    )
 

@@ -532,3 +532,42 @@ Sadece 3 cümle yaz. Meta veri ekleme."""
     result = apply_tr_fixes(result)
     result = " ".join(result.split()).strip()
     return result if result else None
+
+
+async def analyze_sentiment(text: str) -> str:
+    """Kullanıcı yorumunu POSITIVE veya NEGATIVE olarak sınıflandırır."""
+    prompt = f"""Bu yorumu analiz et ve sadece "POSITIVE" veya "NEGATIVE" yaz.
+Başka hiçbir şey yazma.
+
+Yorum: {text[:500]}"""
+
+    settings = _get_settings()
+    use_groq = settings.ENVIRONMENT != "local" and bool(settings.GROQ_API_KEY)
+    try:
+        result = await _call_groq(prompt, max_tokens=10) if use_groq else await _call_ollama_sentiment(prompt)
+    except Exception as e:
+        logger.warning("Sentiment analizi başarısız: %s", e)
+        return "POSITIVE"
+
+    result = result.strip().upper()
+    return "POSITIVE" if "POSITIVE" in result else "NEGATIVE"
+
+
+async def _call_ollama_sentiment(prompt: str) -> str:
+    if not await _is_ollama_available():
+        return "POSITIVE"
+    async with httpx.AsyncClient(
+        timeout=float(_get_settings().OLLAMA_TIMEOUT),
+        headers=OLLAMA_HEADERS,
+    ) as client:
+        resp = await client.post(
+            f"{_get_settings().OLLAMA_BASE_URL.rstrip('/')}/api/generate",
+            json={
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0.1, "num_predict": 10},
+            },
+        )
+        data = _parse_ollama_response(resp)
+        return data.get("response", "POSITIVE").strip()

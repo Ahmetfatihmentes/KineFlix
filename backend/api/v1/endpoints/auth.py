@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
+from pathlib import Path
 
-from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Response, status
+from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Response, UploadFile, File, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -98,3 +99,27 @@ async def get_me(
             detail="Kullanıcı bulunamadı",
         )
     return user
+
+
+@router.post("/upload-avatar")
+async def upload_avatar(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    contents = await file.read()
+    suffix = Path(file.filename).suffix.lower() if file.filename else ".jpg"
+    if suffix not in {".jpg", ".jpeg", ".png", ".webp"}:
+        suffix = ".jpg"
+    filename = f"{user_id}{suffix}"
+    save_path = Path("backend/static/avatars") / filename
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    save_path.write_bytes(contents)
+
+    avatar_url = f"/static/avatars/{filename}"
+    user = await db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    user.avatar_url = avatar_url
+    await db.commit()
+    return {"avatar_url": avatar_url}

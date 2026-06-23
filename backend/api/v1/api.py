@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.api.v1.endpoints import auth, movies, personalized, recommendations, users, watch_history, watchlist
+from backend.api.v1.endpoints import auth, likes, movies, personalized, recommendations, user_reviews, users, watch_history, watchlist
 
 
 api_router = APIRouter()
@@ -17,3 +17,5 @@ api_router.include_router(
     watch_history.router, prefix="/watch-history", tags=["watch-history"]
 )
 api_router.include_router(watchlist.router, prefix="/watchlist", tags=["watchlist"])
+api_router.include_router(user_reviews.router, prefix="/user-reviews", tags=["user-reviews"])
+api_router.include_router(likes.router, prefix="/likes", tags=["likes"])

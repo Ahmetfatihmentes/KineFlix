@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.api.error_handlers import register_exception_handlers
 from backend.api.v1.api import api_router
@@ -45,6 +47,10 @@ def create_app() -> FastAPI:
     app.add_middleware(RateLimitMiddleware)
     register_exception_handlers(app)
     app.include_router(api_router)
+
+    static_dir = Path("backend/static")
+    static_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
     return app
 

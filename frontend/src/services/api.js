@@ -82,4 +82,24 @@ export const getWatchlist = () => api.get('/watchlist/')
 
 export const getWatchHistory = () => api.get('/watch-history/')
 
+export const uploadAvatar = (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return api.post('/auth/upload-avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
+export const updateProfile = (data) => api.patch('/users/me', data)
+
+export const toggleLike = (movieId) => api.post(`/likes/${movieId}`)
+export const getLikeStatus = (movieId) => api.get(`/likes/${movieId}/status`)
+
+export const addUserReview = (movieId, reviewText) =>
+  api.post('/user-reviews/', { movie_id: movieId, review_text: reviewText })
+
+export const getUserReviews = (movieId) => api.get(`/user-reviews/${movieId}`)
+
+export const deleteUserReview = (reviewId) => api.delete(`/user-reviews/${reviewId}`)
+
 export default api

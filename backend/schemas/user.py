@@ -22,3 +22,9 @@ class UserRead(BaseModel):
     role: str
     created_at: datetime
     full_name: str | None = None
+    avatar_url: str | None = None
+
+
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    avatar_url: str | None = None

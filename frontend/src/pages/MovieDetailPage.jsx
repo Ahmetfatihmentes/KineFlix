@@ -17,6 +17,11 @@ import {
   addToWatchlist,
   removeFromWatchlist,
   getWatchlistStatus,
+  toggleLike,
+  getLikeStatus,
+  addUserReview,
+  getUserReviews,
+  deleteUserReview,
 } from '../services/api'
 import { firstGenre, displayOverview, displayTagline, posterSrc } from '../utils/movie'
 
@@ -81,6 +86,13 @@ export default function MovieDetailPage() {
   const [hoveredMovieId, setHoveredMovieId] = useState(null)
   const [aiReview, setAiReview] = useState(null)
   const [showAllActors, setShowAllActors] = useState(false)
+  const [userReviews, setUserReviews] = useState([])
+  const [reviewText, setReviewText] = useState('')
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
+  const [likeLoading, setLikeLoading] = useState(false)
+  const currentUserId = parseInt(localStorage.getItem('kineflix_user_id') || '0', 10)
 
   useEffect(() => {
     let cancelled = false
@@ -198,6 +210,60 @@ export default function MovieDetailPage() {
       cancelled = true
     }
   }, [id, movie])
+
+  useEffect(() => {
+    if (!id) return
+    getUserReviews(id)
+      .then(({ data }) => setUserReviews(data))
+      .catch(() => {})
+  }, [id])
+
+  useEffect(() => {
+    if (!id || !currentUserId) return
+    getLikeStatus(id)
+      .then(({ data }) => {
+        setLiked(data.liked)
+        setLikeCount(data.like_count)
+      })
+      .catch(() => {})
+  }, [id, currentUserId])
+
+  const handleLike = async () => {
+    if (!currentUserId || likeLoading) return
+    setLikeLoading(true)
+    try {
+      const { data } = await toggleLike(id)
+      setLiked(data.liked)
+      setLikeCount((prev) => prev + (data.liked ? 1 : -1))
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLikeLoading(false)
+    }
+  }
+
+  const handleReviewSubmit = async () => {
+    if (!reviewText.trim()) return
+    setReviewSubmitting(true)
+    try {
+      const { data } = await addUserReview(parseInt(id, 10), reviewText.trim())
+      setUserReviews((prev) => [data, ...prev])
+      setReviewText('')
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setReviewSubmitting(false)
+    }
+  }
+
+  const handleReviewDelete = async (reviewId) => {
+    try {
+      await deleteUserReview(reviewId)
+      setUserReviews((prev) => prev.filter((r) => r.id !== reviewId))
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   const fetchShortReason = async (recommendedId) => {
     if (reasonCache[recommendedId] || loadingReasons[recommendedId]) return
@@ -437,6 +503,17 @@ export default function MovieDetailPage() {
                     ? 'Listemde'
                     : 'Listeye Ekle'}
               </button>
+              {currentUserId ? (
+                <button
+                  type="button"
+                  onClick={handleLike}
+                  disabled={likeLoading}
+                  className="border border-error/50 text-on-surface px-6 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-error/10 transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  <span>{liked ? '❤️' : '🤍'}</span>
+                  <span>{likeCount > 0 ? likeCount : ''}</span>
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
@@ -486,6 +563,65 @@ export default function MovieDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {reviews.map((review) => (
                 <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="mb-16">
+          <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4 mb-8">
+            <h2 className="font-headline text-headline-lg text-on-surface uppercase">Kullanıcı Yorumları</h2>
+          </div>
+
+          {currentUserId ? (
+            <div className="mb-8">
+              <textarea
+                className="w-full bg-surface-container border border-outline-variant rounded-lg p-4 text-on-surface text-sm resize-none focus:outline-none focus:border-primary"
+                rows={3}
+                placeholder="Bu film hakkında ne düşünüyorsunuz?"
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+              />
+              <div className="flex justify-end mt-2">
+                <button
+                  onClick={handleReviewSubmit}
+                  disabled={reviewSubmitting || !reviewText.trim()}
+                  className="px-5 py-2 bg-primary text-on-primary rounded font-label text-sm uppercase tracking-wider disabled:opacity-50"
+                >
+                  {reviewSubmitting ? 'Gönderiliyor...' : 'Gönder'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-on-surface-variant text-sm mb-6">Yorum yazmak için <Link to="/login" className="text-primary underline">giriş yapın</Link>.</p>
+          )}
+
+          {userReviews.length === 0 ? (
+            <p className="font-body text-on-surface-variant">Henüz kullanıcı yorumu yok.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {userReviews.map((review) => (
+                <div key={review.id} className="bg-surface-container border border-outline-variant/30 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-xs font-label uppercase tracking-wider px-2 py-0.5 rounded ${review.sentiment === 'POSITIVE' ? 'bg-tertiary-container/30 text-tertiary-container' : 'bg-error-container/30 text-error'}`}>
+                      {review.sentiment === 'POSITIVE' ? '✓ Pozitif' : '✗ Negatif'}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-on-surface-variant text-xs">
+                        {new Date(review.created_at).toLocaleDateString('tr-TR')}
+                      </span>
+                      {review.user_id === currentUserId && (
+                        <button
+                          onClick={() => handleReviewDelete(review.id)}
+                          className="text-error text-xs hover:underline"
+                        >
+                          Sil
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-on-surface text-sm leading-relaxed">{review.review_text}</p>
+                </div>
               ))}
             </div>
           )}

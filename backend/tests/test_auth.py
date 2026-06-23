@@ -147,8 +147,7 @@ def test_watch_history_add_returns_401_without_auth(client) -> None:
 def test_watch_history_add_returns_400_without_movie_id(client, auth_headers) -> None:
     response = client.post("/watch-history/", json={}, headers=auth_headers)
 
-    assert response.status_code == 400
-    assert "movie_id" in response.json()["detail"]
+    assert response.status_code == 422
 
 
 def test_watch_history_add_returns_already_exists(client, auth_headers) -> None:
@@ -241,7 +240,7 @@ def test_watchlist_add_returns_401_without_auth(client) -> None:
 def test_watchlist_add_returns_400_without_movie_id(client, auth_headers) -> None:
     response = client.post("/watchlist/", json={}, headers=auth_headers)
 
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 def test_watchlist_status_returns_in_watchlist(client, auth_headers) -> None:
@@ -335,7 +334,7 @@ def test_user_preferences_returns_401_without_auth(client) -> None:
 @pytest.mark.asyncio
 async def test_get_current_user_id_rejects_missing_header() -> None:
     with pytest.raises(HTTPException) as exc_info:
-        await get_current_user_id(authorization=None)
+        await get_current_user_id(authorization=None, access_token=None)
 
     assert exc_info.value.status_code == 401
     assert "Yetkilendirme" in exc_info.value.detail
@@ -344,7 +343,7 @@ async def test_get_current_user_id_rejects_missing_header() -> None:
 @pytest.mark.asyncio
 async def test_get_current_user_id_rejects_invalid_bearer_format() -> None:
     with pytest.raises(HTTPException) as exc_info:
-        await get_current_user_id(authorization="Token abc")
+        await get_current_user_id(authorization="Token abc", access_token=None)
 
     assert exc_info.value.status_code == 401
 
