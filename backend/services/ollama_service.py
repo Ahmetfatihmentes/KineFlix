@@ -366,21 +366,11 @@ Sadece bu 2 cümleyi yaz."""
             result = await _call_groq(prompt, max_tokens=num_predict * 2)
         except Exception as e:
             logger.error("Groq hatası [%s]: %s", type(e).__name__, e)
-            return _build_fallback_reason(
-                source_movie_title, source_movie_genres, source_content_type,
-                recommended_movie_title, recommended_movie_genres, recommended_content_type,
-                source_movie_director, recommended_movie_director,
-                source_movie_actors, recommended_movie_actors,
-            )
+            return None
     else:
         if not await _is_ollama_available():
             logger.warning("Ollama kullanılamıyor, kural tabanlı fallback kullanılıyor.")
-            return _build_fallback_reason(
-                source_movie_title, source_movie_genres, source_content_type,
-                recommended_movie_title, recommended_movie_genres, recommended_content_type,
-                source_movie_director, recommended_movie_director,
-                source_movie_actors, recommended_movie_actors,
-            )
+            return None
         try:
             async with httpx.AsyncClient(
                 timeout=float(_get_settings().OLLAMA_TIMEOUT),
@@ -403,12 +393,7 @@ Sadece bu 2 cümleyi yaz."""
                 result = data.get("response", "").strip()
         except Exception as e:
             logger.error("Ollama hatası [%s]: %s", type(e).__name__, e)
-            return _build_fallback_reason(
-                source_movie_title, source_movie_genres, source_content_type,
-                recommended_movie_title, recommended_movie_genres, recommended_content_type,
-                source_movie_director, recommended_movie_director,
-                source_movie_actors, recommended_movie_actors,
-            )
+            return None
 
     # Ortak post-processing
     if short_mode:

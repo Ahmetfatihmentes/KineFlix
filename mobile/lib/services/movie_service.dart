@@ -199,6 +199,20 @@ class MovieService {
     }
   }
 
+  static Future<bool> removeFromWatchHistory(int movieId) async {
+    final headers = await _headers();
+    try {
+      final res = await http.delete(
+        Uri.parse('${AppConstants.baseUrl}/watch-history/$movieId'),
+        headers: headers,
+      );
+      return res.statusCode == 200;
+    } catch (e) {
+      debugPrint('MovieService.removeFromWatchHistory hatası: $e');
+      return false;
+    }
+  }
+
   static Future<Map<String, dynamic>?> getPersonalizedRecommendation() async {
     final headers = await _headers();
     try {
@@ -249,5 +263,110 @@ class MovieService {
       debugPrint('MovieService.getReviews hatası: $e');
     }
     return [];
+  }
+
+  static Future<bool> toggleLike(int movieId) async {
+    final headers = await _headers();
+    try {
+      final res = await http.post(
+        Uri.parse('${AppConstants.baseUrl}/likes/$movieId'),
+        headers: headers,
+      );
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        return data['liked'] as bool;
+      }
+    } catch (e) {
+      debugPrint('MovieService.toggleLike hatası: $e');
+    }
+    return false;
+  }
+
+  static Future<Map<String, dynamic>?> getLikeStatus(int movieId) async {
+    final headers = await _headers();
+    try {
+      final res = await http.get(
+        Uri.parse('${AppConstants.baseUrl}/likes/$movieId/status'),
+        headers: headers,
+      );
+      if (res.statusCode == 200) {
+        return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      debugPrint('MovieService.getLikeStatus hatası: $e');
+    }
+    return null;
+  }
+
+  static Future<List<Movie>> getLikedMovies() async {
+    final headers = await _headers();
+    try {
+      final res = await http.get(
+        Uri.parse('${AppConstants.baseUrl}/likes/my-liked-movies'),
+        headers: headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        if (data is List) {
+          return data.map((e) => Movie.fromJson(e)).toList();
+        }
+      }
+    } catch (e) {
+      debugPrint('MovieService.getLikedMovies hatası: $e');
+    }
+    return [];
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserReviews(int movieId) async {
+    final headers = await _headers();
+    try {
+      final res = await http.get(
+        Uri.parse('${AppConstants.baseUrl}/user-reviews/$movieId'),
+        headers: headers,
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+      }
+    } catch (e) {
+      debugPrint('MovieService.getUserReviews hatası: $e');
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>?> addUserReview(
+    int movieId,
+    String reviewText,
+  ) async {
+    final headers = await _headers();
+    try {
+      final res = await http.post(
+        Uri.parse('${AppConstants.baseUrl}/user-reviews/'),
+        headers: headers,
+        body: jsonEncode({'movie_id': movieId, 'review_text': reviewText}),
+      );
+      if (res.statusCode == 201 || res.statusCode == 200) {
+        return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      debugPrint('MovieService.addUserReview hatası: $e');
+    }
+    return null;
+  }
+
+  static Future<bool> deleteUserReview(int reviewId) async {
+    final headers = await _headers();
+    try {
+      final res = await http.delete(
+        Uri.parse('${AppConstants.baseUrl}/user-reviews/$reviewId'),
+        headers: headers,
+      );
+      return res.statusCode == 204 || res.statusCode == 200;
+    } catch (e) {
+      debugPrint('MovieService.deleteUserReview hatası: $e');
+      return false;
+    }
   }
 }

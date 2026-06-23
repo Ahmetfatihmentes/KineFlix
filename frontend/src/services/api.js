@@ -66,6 +66,9 @@ export const getTrailer = (id) => api.get(`/movies/${id}/trailer`)
 export const addToWatchHistory = (movieId) =>
   api.post('/watch-history/', { movie_id: movieId })
 
+export const removeFromWatchHistory = (movieId) =>
+  api.delete(`/watch-history/${movieId}`)
+
 export const getWatchStatus = (movieId) =>
   api.get(`/watch-history/${movieId}/status`)
 
@@ -94,6 +97,7 @@ export const updateProfile = (data) => api.patch('/users/me', data)
 
 export const toggleLike = (movieId) => api.post(`/likes/${movieId}`)
 export const getLikeStatus = (movieId) => api.get(`/likes/${movieId}/status`)
+export const getLikedMovies = () => api.get('/likes/my-liked-movies')
 
 export const addUserReview = (movieId, reviewText) =>
   api.post('/user-reviews/', { movie_id: movieId, review_text: reviewText })

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -107,5 +108,29 @@ class AuthService {
   static Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  static Future<int?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(AppConstants.userIdKey);
+  }
+
+  static Future<bool> uploadAvatar(String filePath) async {
+    final token = await getToken();
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${AppConstants.baseUrl}/auth/upload-avatar'),
+      );
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.files.add(await http.MultipartFile.fromPath('file', filePath));
+      final streamed = await request.send();
+      return streamed.statusCode == 200;
+    } catch (e) {
+      debugPrint('AuthService.uploadAvatar hatası: $e');
+      return false;
+    }
   }
 }

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
-import { getMe, getWatchHistory, getWatchlist, logoutUser, uploadAvatar } from '../services/api'
+import { getMe, getWatchHistory, getWatchlist, getLikedMovies, logoutUser, uploadAvatar } from '../services/api'
 import { firstGenre, posterSrc } from '../utils/movie'
 
 function computeTopGenres(watchHistory) {
@@ -37,6 +37,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [avatarUploading, setAvatarUploading] = useState(false)
+  const [likedMovies, setLikedMovies] = useState([])
 
   useEffect(() => {
     let cancelled = false
@@ -44,15 +45,17 @@ export default function ProfilePage() {
       setLoading(true)
       setError('')
       try {
-        const [userRes, historyRes, watchlistRes] = await Promise.all([
+        const [userRes, historyRes, watchlistRes, likedRes] = await Promise.all([
           getMe(),
           getWatchHistory(),
           getWatchlist(),
+          getLikedMovies(),
         ])
         if (cancelled) return
         setUser(userRes.data)
         setWatchHistory(Array.isArray(historyRes.data) ? historyRes.data : [])
         setWatchlist(Array.isArray(watchlistRes.data) ? watchlistRes.data : [])
+        setLikedMovies(Array.isArray(likedRes.data) ? likedRes.data : [])
       } catch {
         if (!cancelled) setError('Profil yüklenemedi.')
       } finally {
@@ -265,6 +268,42 @@ export default function ProfilePage() {
                           <span className="material-symbols-outlined material-symbols-filled text-tertiary-container text-[16px]">
                             check_circle
                           </span>
+                        </div>
+                      </div>
+                      <span className="font-title text-[16px] text-on-surface truncate group-hover:text-primary transition-colors">
+                        {movie.title}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Beğendiklerim */}
+            <section>
+              <div className="flex items-center justify-between mb-8 border-b border-outline-variant/30 pb-2">
+                <h2 className="font-headline text-headline-mobile text-primary tracking-widest uppercase">
+                  Beğendiklerim
+                </h2>
+              </div>
+              {likedMovies.length === 0 ? (
+                <p className="font-body text-on-surface-variant">Henüz beğenilen film yok.</p>
+              ) : (
+                <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-4">
+                  {likedMovies.slice(0, 6).map((movie) => (
+                    <Link
+                      key={movie.id}
+                      to={`/movies/${movie.id}`}
+                      className="flex-none w-32 md:w-40 flex flex-col gap-2 group"
+                    >
+                      <div className="relative aspect-[2/3] overflow-hidden rounded border border-[#1E3A5F]/50 group-hover:border-primary-container transition-colors">
+                        <img
+                          alt={movie.title}
+                          src={posterSrc(movie.poster_url)}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2 right-2 bg-background/80 rounded-full p-1 border border-red-500/50">
+                          <span className="text-red-500 text-[14px] leading-none">♥</span>
                         </div>
                       </div>
                       <span className="font-title text-[16px] text-on-surface truncate group-hover:text-primary transition-colors">

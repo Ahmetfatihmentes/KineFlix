@@ -76,3 +76,23 @@ async def add_to_watch_history(
     db.add(entry)
     await db.commit()
     return {"message": "İzleme geçmişine eklendi", "already_exists": False}
+
+
+@router.delete("/{movie_id}", status_code=status.HTTP_200_OK)
+async def remove_from_watch_history(
+    movie_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> dict:
+    result = await db.execute(
+        select(WatchHistory).where(
+            WatchHistory.user_id == user_id,
+            WatchHistory.movie_id == movie_id,
+        )
+    )
+    entry = result.scalar_one_or_none()
+    if entry is None:
+        return {"message": "Kayıt bulunamadı"}
+    await db.delete(entry)
+    await db.commit()
+    return {"message": "İzleme geçmişinden çıkarıldı"}

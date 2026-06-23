@@ -13,6 +13,7 @@ import {
   getTrailer,
   getWatchHistory,
   addToWatchHistory,
+  removeFromWatchHistory,
   getWatchStatus,
   addToWatchlist,
   removeFromWatchlist,
@@ -311,10 +312,13 @@ export default function MovieDetailPage() {
   const handleWatch = async () => {
     dispatch({ type: 'WATCH_LOADING', payload: true })
     try {
-      await addToWatchHistory(Number(id))
-      setWatched(true)
-      const query = encodeURIComponent(movie?.title || '')
-      window.open(`https://www.justwatch.com/tr/search?q=${query}`, '_blank')
+      if (watched) {
+        await removeFromWatchHistory(Number(id))
+        setWatched(false)
+      } else {
+        await addToWatchHistory(Number(id))
+        setWatched(true)
+      }
     } catch (e) {
       console.error(e)
     } finally {
@@ -481,10 +485,10 @@ export default function MovieDetailPage() {
                 type="button"
                 onClick={handleWatch}
                 disabled={watchLoading}
-                className="bg-primary-container text-on-primary-container px-8 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-primary transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="border border-secondary-container text-on-surface px-8 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-secondary-container/50 transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                <span className="material-symbols-outlined material-symbols-filled">
-                  {watchLoading ? 'hourglass_empty' : watched ? 'check' : 'play_arrow'}
+                <span className="material-symbols-outlined">
+                  {watchLoading ? 'hourglass_empty' : watched ? 'check' : 'add'}
                 </span>
                 {watchLoading ? 'Yükleniyor...' : watched ? 'İzlendi' : 'İzle'}
               </button>
@@ -508,10 +512,11 @@ export default function MovieDetailPage() {
                   type="button"
                   onClick={handleLike}
                   disabled={likeLoading}
-                  className="border border-error/50 text-on-surface px-6 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-error/10 transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="border border-error/50 px-6 py-3 rounded font-label text-label-md uppercase tracking-widest hover:bg-error/10 transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
-                  <span>{liked ? '❤️' : '🤍'}</span>
-                  <span>{likeCount > 0 ? likeCount : ''}</span>
+                  <span className={`text-xl leading-none ${liked ? 'text-red-500' : 'text-on-surface-variant'}`}>
+                    {liked ? '♥' : '♡'}
+                  </span>
                 </button>
               ) : null}
             </div>

@@ -4,9 +4,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import get_db
 from backend.core.deps import get_current_user_id
+from backend.models.movie import Movie
 from backend.models.movie_like import MovieLike
+from backend.schemas.movie import MovieRead
 
 router = APIRouter()
+
+
+@router.get("/my-liked-movies", response_model=list[MovieRead])
+async def get_my_liked_movies(
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    result = await db.execute(
+        select(Movie)
+        .join(MovieLike, Movie.id == MovieLike.movie_id)
+        .where(MovieLike.user_id == user_id)
+        .order_by(MovieLike.created_at.desc())
+    )
+    return result.scalars().all()
 
 
 @router.post("/{movie_id}", status_code=201)
