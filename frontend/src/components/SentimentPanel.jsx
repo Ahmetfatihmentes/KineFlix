@@ -1,6 +1,20 @@
 function getPctSuffix(pct) {
   const lastDigit = pct % 10
-  if (lastDigit === 0) return 'ı'
+  const tens = Math.floor(pct / 10) % 10
+
+  if (lastDigit === 0) {
+    if (pct === 100) return 'ü'
+    if (tens === 1) return 'u'
+    if (tens === 2) return 'si'
+    if (tens === 3) return 'ü'
+    if (tens === 4) return 'ı'
+    if (tens === 5) return 'i'
+    if (tens === 6) return 'ı'
+    if (tens === 7) return 'i'
+    if (tens === 8) return 'i'
+    if (tens === 9) return 'ı'
+    return 'ı'
+  }
   if (lastDigit === 1) return 'i'
   if (lastDigit === 2) return 'si'
   if (lastDigit === 3) return 'ü'
