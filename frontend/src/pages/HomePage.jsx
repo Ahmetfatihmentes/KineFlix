@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
-import { addToWatchlist, getPersonalizedRecommendation, getRecommendationReason, searchMovies } from '../services/api'
+import { addToWatchlist, getPersonalizedRecommendation, getRecommendationReason, getTrailer, searchMovies } from '../services/api'
 import {
   displayOverview,
   displayRatingLabel,
@@ -59,6 +59,7 @@ function movieHasGenre(movie, englishGenre) {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const [allMovies, setAllMovies] = useState([])
   const [selectedMood, setSelectedMood] = useState(null)
   const [selectedGenre, setSelectedGenre] = useState(null)
@@ -178,9 +179,17 @@ export default function HomePage() {
     setSelectedGenre((prev) => (prev === pill ? null : pill))
   }
 
-  const handleWatch = (title) => {
-    const query = encodeURIComponent(title || '')
-    window.open(`https://www.justwatch.com/tr/search?q=${query}`, '_blank')
+  const handleTrailer = async (movieId) => {
+    try {
+      const { data } = await getTrailer(movieId)
+      if (data?.trailer_url) {
+        window.open(data.trailer_url, '_blank')
+      } else {
+        navigate(`/movies/${movieId}`)
+      }
+    } catch {
+      navigate(`/movies/${movieId}`)
+    }
   }
 
   const handleAddToWatchlist = async () => {
@@ -338,11 +347,11 @@ export default function HomePage() {
                   <div className="flex flex-col sm:flex-row gap-4 mt-auto">
                     <button
                       type="button"
-                      onClick={() => handleWatch(featuredMovie.title)}
+                      onClick={() => handleTrailer(featuredMovie.id)}
                       className="bg-primary text-on-primary-fixed px-8 py-3 rounded-sm font-label text-label-md uppercase hover:bg-primary-fixed transition-colors flex items-center justify-center gap-2 shadow-[0_0_10px_rgba(201,168,76,0.2)]"
                     >
                       <span className="material-symbols-outlined material-symbols-filled">play_arrow</span>
-                      İzle
+                      Fragmanı İzle
                     </button>
                     <button
                       type="button"

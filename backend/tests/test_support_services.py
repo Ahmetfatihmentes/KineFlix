@@ -232,7 +232,7 @@ async def test_generate_review_summary_with_ollama_mock() -> None:
 
 @pytest.mark.asyncio
 @patch("backend.services.ollama_service._is_ollama_available", new_callable=AsyncMock, return_value=False)
-async def test_generate_recommendation_reason_returns_fallback_when_ollama_down(mock_available) -> None:
+async def test_generate_recommendation_reason_returns_none_when_ollama_down(mock_available) -> None:
     result = await generate_recommendation_reason(
         source_movie_title="A",
         source_movie_genres="Drama",
@@ -242,8 +242,7 @@ async def test_generate_recommendation_reason_returns_fallback_when_ollama_down(
         recommended_movie_overview="Overview B",
     )
 
-    assert result is not None
-    assert "beğenebilirsin" in result or "türünde" in result
+    assert result is None
 
 
 @pytest.mark.asyncio
