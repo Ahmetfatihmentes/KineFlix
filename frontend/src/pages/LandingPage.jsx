@@ -42,7 +42,7 @@ const STEPS = [
 ]
 
 const STATS_FALLBACK = [
-  { value: '54.000+', label: 'Film & Dizi' },
+  { value: '10.004+', label: 'Film & Dizi' },
   { value: '238.000+', label: 'Eleştirmen Yorumu' },
   { value: '%94', label: 'Ortalama Memnuniyet' },
 ]
@@ -137,7 +137,7 @@ export default function LandingPage() {
             SİNEMANIN ZEKASI, <span className="text-primary">SENİN İÇİN</span>
           </h1>
           <p className="font-body text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-12">
-            Yapay zeka destekli film öneri sistemi. 54.000+ film, kişisel zevkine göre seçilmiş.
+            Yapay zeka destekli içerik öneri sistemi. 10.004+ Film & Dizi, kişisel zevkine göre seçilmiş.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center w-full sm:w-auto">
             <Link
