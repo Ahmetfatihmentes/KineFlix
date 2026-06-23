@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../core/constants.dart';
 import '../core/theme.dart';
 import '../models/movie.dart';
 import '../services/movie_service.dart';
@@ -145,7 +146,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       final genre = _genres[index];
                       final selected = _genreFilter == genre;
                       return FilterChip(
-                        label: Text(genre),
+                        label: Text(AppConstants.translateGenre(genre)),
                         selected: selected,
                         selectedColor: AppTheme.primary.withValues(alpha: 0.2),
                         labelStyle: TextStyle(

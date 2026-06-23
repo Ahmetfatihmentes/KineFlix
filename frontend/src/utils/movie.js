@@ -1,3 +1,42 @@
+const GENRE_MAP = {
+  'Action': 'Aksiyon',
+  'Adventure': 'Macera',
+  'Animation': 'Animasyon',
+  'Comedy': 'Komedi',
+  'Crime': 'Suç',
+  'Documentary': 'Belgesel',
+  'Drama': 'Dram',
+  'Fantasy': 'Fantastik',
+  'Horror': 'Korku',
+  'Music': 'Müzik',
+  'Mystery': 'Gizem',
+  'Romance': 'Romantik',
+  'Science Fiction': 'Bilim Kurgu',
+  'Thriller': 'Gerilim',
+  'War': 'Savaş',
+  'Western': 'Western',
+  'Family': 'Aile',
+  'History': 'Tarih',
+  'Biography': 'Biyografi',
+  'Sport': 'Spor',
+  'Musical': 'Müzikal',
+  'TV Movie': 'TV Filmi',
+  'Crime TV Shows': 'Suç Dizisi',
+  'TV Dramas': 'Drama Dizisi',
+  'TV Thrillers': 'Gerilim Dizisi',
+  'TV Comedies': 'Komedi Dizisi',
+  'Anime Series': 'Anime',
+  'Reality TV': 'Gerçeklik TV',
+  'Talk Shows': 'Talk Show',
+  'Kids': 'Çocuk',
+  'International': 'Uluslararası',
+}
+
+function translateGenre(g) {
+  const key = g.trim()
+  return GENRE_MAP[key] || key
+}
+
 const PLACEHOLDER =
   'data:image/svg+xml,' +
   encodeURIComponent(
@@ -20,12 +59,12 @@ export function formatScore(movie) {
 
 export function firstGenre(genres) {
   if (!genres) return 'Film'
-  return genres.split(',')[0].trim()
+  return translateGenre(genres.split(',')[0])
 }
 
 export function parseGenres(genres) {
   if (!genres) return []
-  return genres.split(',').map((g) => g.trim()).filter(Boolean)
+  return genres.split(',').map(translateGenre).filter(Boolean)
 }
 
 export function displayOverview(movie) {
@@ -71,6 +110,6 @@ export function genreSubtitle(genres, max = 2) {
   return genres
     .split(',')
     .slice(0, max)
-    .map((g) => g.trim())
+    .map(translateGenre)
     .join(' • ')
 }
