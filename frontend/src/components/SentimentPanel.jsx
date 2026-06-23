@@ -1,3 +1,18 @@
+function getPctSuffix(pct) {
+  const lastDigit = pct % 10
+  if (lastDigit === 0) return 'ı'
+  if (lastDigit === 1) return 'i'
+  if (lastDigit === 2) return 'si'
+  if (lastDigit === 3) return 'ü'
+  if (lastDigit === 4) return 'ü'
+  if (lastDigit === 5) return 'i'
+  if (lastDigit === 6) return 'sı'
+  if (lastDigit === 7) return 'si'
+  if (lastDigit === 8) return 'i'
+  if (lastDigit === 9) return 'u'
+  return 'i'
+}
+
 function HalfStar() {
   return (
     <span style={{ position: 'relative', display: 'inline-block', color: 'transparent', WebkitTextStroke: '1px #e6c364', fontSize: 'inherit' }}>
@@ -48,7 +63,7 @@ export default function SentimentPanel({ positivePct, rating }) {
       {pct != null && (
         <>
           <p className="font-headline text-headline-lg text-on-surface uppercase mb-6 leading-tight relative z-10">
-            Kullanıcıların %{pct}&apos;ü bu filmi beğendi
+            KULLANICILARIN %{pct}&apos;{getPctSuffix(pct)} BU FİLMİ BEĞENDİ
           </p>
           <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden flex relative z-10">
             <div className="h-full bg-tertiary-container" style={{ width: `${pct}%` }} />
