@@ -99,7 +99,7 @@ async def get_movie(
     if movie is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Movie not found",
+            detail="Film bulunamadı",
         )
     result = movie_service.to_movie_detail_read(movie)
 
@@ -116,7 +116,7 @@ async def get_movie_reviews(
     db: AsyncSession = Depends(get_db),
 ) -> list[ReviewRead]:
     """
-    Get reviews for a given movie id.
+    Verilen film ID'sine ait eleştirmen yorumlarını döndürür.
     """
     reviews = await movie_service.get_reviews_for_movie(
         db=db, movie_id=movie_id, limit=limit
@@ -124,7 +124,7 @@ async def get_movie_reviews(
     if reviews is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Movie not found",
+            detail="Film bulunamadı",
         )
     return reviews
 

@@ -241,7 +241,7 @@ export default function HomePage() {
       <Navbar active="discover" />
 
       <main className="flex-grow pt-[100px] pb-gutter w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-        {/* Mood Selector */}
+        {/* Ruh Hali Seçici */}
         <section className="py-12 md:py-20 flex flex-col items-center text-center">
           <h1 className="font-headline text-headline-mobile md:font-display md:text-display-lg text-on-surface mb-8">
             BUGÜN NE İZLEMEK İSTİYORSUN?

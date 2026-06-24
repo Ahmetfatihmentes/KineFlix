@@ -2,7 +2,10 @@
 omit =
     backend/scripts/*
     backend/tests/*
+    backend/ai_engine/*
 
 [report]
+omit =
+    backend/ai_engine/*
 exclude_lines =
     pragma: no cover

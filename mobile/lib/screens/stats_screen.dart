@@ -6,6 +6,32 @@ import '../services/auth_service.dart';
 import '../services/movie_service.dart';
 import '../widgets/film_grain.dart';
 
+const Map<String, String> _kGenreMap = {
+  'Action': 'Aksiyon',
+  'Adventure': 'Macera',
+  'Animation': 'Animasyon',
+  'Comedy': 'Komedi',
+  'Crime': 'Suç',
+  'Documentary': 'Belgesel',
+  'Drama': 'Dram',
+  'Fantasy': 'Fantastik',
+  'Horror': 'Korku',
+  'Music': 'Müzik',
+  'Mystery': 'Gizem',
+  'Romance': 'Romantik',
+  'Science Fiction': 'Bilim Kurgu',
+  'Thriller': 'Gerilim',
+  'War': 'Savaş',
+  'Family': 'Aile',
+  'Crime TV Shows': 'Suç Dizisi',
+  'TV Dramas': 'Drama Dizisi',
+  'TV Thrillers': 'Gerilim Dizisi',
+  'TV Comedies': 'Komedi Dizisi',
+  'International TV Shows': 'Uluslararası Dizi',
+  'Anime Series': 'Anime',
+  'Reality TV': 'Gerçeklik TV',
+};
+
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
 
@@ -272,7 +298,7 @@ class _StatsScreenState extends State<StatsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                genre.toUpperCase(),
+                (_kGenreMap[genre.trim()] ?? genre.trim()).toUpperCase(),
                 style: const TextStyle(
                   color: AppTheme.onSurfaceVariant,
                   fontSize: 12,

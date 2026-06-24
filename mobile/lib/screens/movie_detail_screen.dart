@@ -35,6 +35,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
   bool _recLoading = false;
   bool _actionLoading = false;
   bool _watched = false;
+  bool _inWatchlist = false;
   bool _liked = false;
   bool _likeLoading = false;
   int _currentUserId = 0;
@@ -159,11 +160,20 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
 
   Future<void> _addToList(Movie movie) async {
     setState(() => _actionLoading = true);
-    await MovieService.addToWatchlist(movie.id);
+    if (_inWatchlist) {
+      await MovieService.removeFromWatchlist(movie.id);
+    } else {
+      await MovieService.addToWatchlist(movie.id);
+    }
     if (mounted) {
-      setState(() => _actionLoading = false);
+      setState(() {
+        _inWatchlist = !_inWatchlist;
+        _actionLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Listeye eklendi')),
+        SnackBar(
+          content: Text(_inWatchlist ? 'Listeye eklendi' : 'Listeden çıkarıldı'),
+        ),
       );
     }
   }
@@ -381,8 +391,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: GhostButton(
-                                  label: 'Listeye Ekle',
-                                  icon: Icons.add,
+                                  label: _inWatchlist ? 'Listede' : 'Listeye Ekle',
+                                  icon: _inWatchlist ? Icons.check : Icons.add,
                                   onPressed: _actionLoading
                                       ? null
                                       : () => _addToList(movie),

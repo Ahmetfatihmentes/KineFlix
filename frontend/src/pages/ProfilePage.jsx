@@ -79,9 +79,9 @@ export default function ProfilePage() {
 
   const recentHistory = watchHistory.slice(0, 6)
   const watchlistPreview = watchlist.slice(0, 4)
-  const topGenreName = topGenres[0]?.[0] || 'Dram'
+  const topGenreName = topGenres.length > 0 ? firstGenre(topGenres[0][0]) : 'Dram'
   const tasteText = `Ağırlıklı olarak ${topGenreName} türünde içerikler izleyen bir sinema tutkunusun.`
-  const tasteBadges = topGenres.slice(0, 3).map(([name]) => name)
+  const tasteBadges = topGenres.slice(0, 3).map(([name]) => firstGenre(name))
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0]
@@ -221,7 +221,7 @@ export default function ProfilePage() {
                     const pct = genreTotal ? Math.round((count / genreTotal) * 100) : 0
                     return (
                       <div key={genre} className="flex items-center gap-4">
-                        <span className="font-label text-label-md text-on-surface w-28 truncate">{genre}</span>
+                        <span className="font-label text-label-md text-on-surface w-28 truncate">{firstGenre(genre)}</span>
                         <div className="flex-grow h-2 bg-surface-container-high rounded overflow-hidden">
                           <div
                             className="h-full bg-primary rounded"

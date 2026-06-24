@@ -82,8 +82,8 @@ class _TfidfCachePayload:
 
 class MovieRecommender:
     """
-    Hybrid TF-IDF + MiniLM embedding recommender backed by PostgreSQL movie catalog.
-    Matrix build runs in the background; cached matrix is persisted to disk.
+    PostgreSQL film kataloğuna dayalı hibrit TF-IDF + MiniLM embedding öneri motoru.
+    Matris oluşturma arka planda çalışır; önbelleğe alınan matris diske kaydedilir.
     """
 
     def __init__(self) -> None:
@@ -282,7 +282,7 @@ class MovieRecommender:
         return True
 
     async def initialize(self, db: AsyncSession) -> None:
-        """Blocking initialization for tests and manual rebuilds."""
+        """Testler ve manuel yeniden oluşturma için bloklayıcı başlatma."""
         if self._is_ready:
             return
 

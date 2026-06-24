@@ -18,7 +18,7 @@ async def get_recommendations(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Get recommended movies for a given movie id.
+    Verilen film ID'sine göre önerilen filmleri döndürür.
     """
     if not movie_recommender.is_ready:
         if not movie_recommender.is_loading:
@@ -37,6 +37,6 @@ async def get_recommendations(
     if recommendations is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Movie not found",
+            detail="Film bulunamadı",
         )
     return [MovieRead.model_validate(movie) for movie in recommendations]

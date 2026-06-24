@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 
 async def initialize_database() -> None:
     """
-    Create tables for local development and seed a minimal movie catalog.
-    If the database itself does not exist yet, startup will fail before this step.
+    Yerel geliştirme için tabloları oluşturur ve minimal film kataloğunu seed'ler.
+    Veritabanı henüz mevcut değilse başlangıç bu adımdan önce başarısız olur.
     """
     try:
         async with engine.begin() as conn:
@@ -57,8 +57,8 @@ async def initialize_database() -> None:
                 ]
             )
             await session.commit()
-            logger.info("Seeded initial movie catalog.")
+            logger.info("İlk film kataloğu oluşturuldu.")
     except SQLAlchemyError:
         logger.warning(
-            "Database bootstrap skipped because the configured database is unavailable."
+            "Yapılandırılan veritabanına erişilemiyor, başlangıç adımı atlandı."
         )

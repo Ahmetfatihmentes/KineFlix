@@ -1,6 +1,6 @@
 class BusinessException(Exception):
     """
-    Base exception for business/application layer errors.
+    İş/uygulama katmanı hataları için temel exception sınıfı.
     """
 
     def __init__(self, message: str) -> None:
@@ -10,12 +10,12 @@ class BusinessException(Exception):
 
 class NotFoundException(BusinessException):
     """
-    Raised when a requested resource cannot be found.
+    İstenen kaynak bulunamadığında fırlatılır.
     """
 
 
 class ValidationException(BusinessException):
     """
-    Raised when input validation at business level fails.
+    İş katmanı doğrulaması başarısız olduğunda fırlatılır.
     """
 

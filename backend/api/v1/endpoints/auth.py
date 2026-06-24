@@ -26,7 +26,7 @@ router = APIRouter()
 )
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> UserRead:
     """
-    User registration endpoint.
+    Kullanıcı kayıt endpoint'i.
     """
     return await auth_service.register_user(db=db, user_in=user_in)
 
@@ -38,8 +38,8 @@ async def login(
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
     """
-    User login endpoint. Sets an httpOnly cookie for web clients; also returns
-    the token in the body so mobile clients can store it themselves.
+    Kullanıcı giriş endpoint'i. Web istemcileri için httpOnly cookie set eder;
+    ayrıca mobil istemcilerin token'ı kendileri saklayabilmesi için body'de de döner.
     """
     user = await auth_service.login_user(db=db, credentials=user_in)
     access_token = create_access_token({"sub": str(user.id), "email": user.email})

@@ -12,7 +12,7 @@ from backend.core.config import get_settings
 
 class Base(DeclarativeBase):
     """
-    Base class for SQLAlchemy models.
+    SQLAlchemy modelleri için temel sınıf.
     """
 
 
@@ -33,7 +33,7 @@ AsyncSessionLocal = async_sessionmaker(
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
-    FastAPI dependency that yields an async database session.
+    Async veritabanı oturumu döndüren FastAPI bağımlılığı.
     """
     async with AsyncSessionLocal() as session:
         yield session

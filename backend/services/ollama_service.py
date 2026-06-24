@@ -141,7 +141,7 @@ def _finalize_recommendation_reason(
     source_title: str,
     recommended_title: str,
 ) -> str:
-    """Keep at most two body sentences and always append the exact closing line."""
+    """En fazla iki gövde cümlesi korur ve sonuna sabit kapanış cümlesini ekler."""
     result = result.strip()
     if son_cumle in result:
         result = result.replace(son_cumle, "").strip()
