@@ -45,7 +45,7 @@ def test_get_movie_returns_404_for_missing_id(client) -> None:
     response = client.get("/movies/999")
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Movie not found"
+    assert response.json()["detail"] == "Film bulunamadı"
 
 
 def test_get_movie_reviews_returns_reviews(client) -> None:
@@ -61,7 +61,7 @@ def test_get_movie_reviews_returns_404_for_missing_movie(client) -> None:
     response = client.get("/movies/999/reviews")
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Movie not found"
+    assert response.json()["detail"] == "Film bulunamadı"
 
 
 def test_recommendations_returns_related_movies(client) -> None:
@@ -78,7 +78,7 @@ def test_recommendations_returns_404_for_missing_movie(client) -> None:
     response = client.get("/movies/999/recommendations")
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Movie not found"
+    assert response.json()["detail"] == "Film bulunamadı"
 
 
 @patch("backend.api.v1.endpoints.recommendations.movie_recommender")
